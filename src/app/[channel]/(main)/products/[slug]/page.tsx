@@ -9,7 +9,7 @@ import { AddButton } from "./AddButton";
 import { VariantSelector } from "@/ui/components/VariantSelector";
 import { ProductImageWrapper } from "@/ui/atoms/ProductImageWrapper";
 import { executeGraphQL } from "@/lib/graphql";
-import { formatMoney, formatMoneyRange } from "@/lib/utils";
+import { formatMoney, formatMoneyRange, serverToBase64URL } from "@/lib/utils";
 import { CheckoutAddLineDocument, ProductDetailsDocument, ProductListDocument } from "@/gql/graphql";
 import * as Checkout from "@/lib/checkout";
 import { AvailabilityMessage } from "@/ui/components/AvailabilityMessage";
@@ -44,7 +44,8 @@ export async function generateMetadata(
 		description: product.seoDescription || productNameAndVariant,
 		alternates: {
 			canonical: process.env.NEXT_PUBLIC_STOREFRONT_URL
-				? process.env.NEXT_PUBLIC_STOREFRONT_URL + `/products/${encodeURIComponent(params.slug)}`
+				? process.env.NEXT_PUBLIC_STOREFRONT_URL +
+					`/${params.channel}/products/${encodeURIComponent(params.slug)}`
 				: undefined,
 		},
 		openGraph: product.thumbnail
@@ -55,8 +56,16 @@ export async function generateMetadata(
 							alt: product.name,
 						},
 					],
+					url: process.env.NEXT_PUBLIC_STOREFRONT_URL
+						? process.env.NEXT_PUBLIC_STOREFRONT_URL + `/products/${encodeURIComponent(params.slug)}`
+						: undefined,
 				}
 			: null,
+		other: {
+			["og:params"]: serverToBase64URL(
+				`/${params.channel}/products/${encodeURIComponent(params.slug)}?variant=${searchParams.variant}`,
+			),
+		},
 	};
 }
 

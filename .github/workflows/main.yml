@@ -1,72 +1,90 @@
-name: Build, TypeScripts, tests
-on: deployment_status
+name: QA
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches:
+      - canary
 
 concurrency:
   group: tests-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build_and_test:
-    if: ${{ github.event.deployment_status.state == 'success' }}
-
+  build:
     runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_SALEOR_API_URL: https://storefront1.saleor.cloud/graphql/
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get PNPM version from package.json
-        id: pnpm-version
-        run: echo "pnpm_version=$(cat package.json | jq '.engines.pnpm' | sed -E 's/[^0-9.]//g')" >> $GITHUB_OUTPUT
-
-      - name: Install PNPM
-        uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v2
         with:
-          version: ${{ steps.pnpm-version.outputs.pnpm_version }}
+          version: 8.12.0
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version-file: package.json
+          node-version-file: "package.json"
           cache: "pnpm"
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.json') }}-
 
       - name: Install dependencies
         run: pnpm --version && pnpm install --frozen-lockfile
 
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "playwright_version=$(pnpm playwright --version | sed -E 's/[^0-9.]//g')" >> $GITHUB_OUTPUT
+      - name: Check prettier
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        run: pnpm prettier --check .
 
-      - uses: actions/cache@v3
-        name: Playwright Cache
-        id: playwright-cache
+      - name: Generate
+        run: pnpm generate
+
+      - name: Load secret
+        uses: 1password/load-secrets-action@v1
         with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.playwright_version }}
-
-      - run: pnpm dlx playwright install chromium --with-deps
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-
-      - run: pnpm dlx playwright install-deps chromium
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-
-      - name: Wait for Vercel Preview
-        uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
-        id: waitForVercel
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 240
-          check_interval: 5
-
-      - name: Run Playwright tests
-        run: pnpm test
+          # Export loaded secrets as environment variables
+          export-env: true
         env:
-          BASE_URL: ${{ steps.waitForVercel.outputs.url }}
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          TEST_SALEOR_APP_TOKEN: op://Shop-ex/saleor-app-payment-stripe_TEST_ENVS/TEST_SALEOR_APP_TOKEN
+          TEST_SALEOR_APP_ID: op://Shop-ex/saleor-app-payment-stripe_TEST_ENVS/TEST_SALEOR_APP_ID
+          TEST_PAYMENT_APP_SECRET_KEY: op://Shop-ex/saleor-app-payment-stripe_TEST_ENVS/TEST_PAYMENT_APP_SECRET_KEY
+          TEST_PAYMENT_APP_PUBLISHABLE_KEY: op://Shop-ex/saleor-app-payment-stripe_TEST_ENVS/TEST_PAYMENT_APP_PUBLISHABLE_KEY
+          TEST_PAYMENT_APP_WEBHOOK_SECRET: op://Shop-ex/saleor-app-payment-stripe_TEST_ENVS/TEST_PAYMENT_APP_WEBHOOK_SECRET
+          TEST_PAYMENT_APP_WEBHOOK_ID: op://Shop-ex/saleor-app-payment-stripe_TEST_ENVS/TEST_PAYMENT_APP_WEBHOOK_ID
 
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - name: Test
+        run: pnpm test:ci
+
+      - name: Dependency cruiser
+        if: ${{ github.event_name != 'push' && github.actor != 'dependabot[bot]' }}
+        run: pnpm exec dependency-cruiser src
+
+      - name: Download coverage report from canary
+        if: ${{ github.event_name != 'push' && github.actor != 'dependabot[bot]' }}
+        uses: dawidd6/action-download-artifact@v6
         with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+          workflow_conclusion: success
+          branch: canary
+          event: push
+          name: coverage-artifacts
+          path: coverage-main/
+
+      - name: Coverage report
+        if: ${{ github.event_name != 'push' && github.actor != 'dependabot[bot]' }}
+        uses: ArtiomTr/jest-coverage-report-action@v2.2.4
+        with:
+          skip-step: all
+          coverage-file: coverage/report.json
+          base-coverage-file: coverage-main/report.json
+
+      - name: Upload coverage report
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/canary' && github.actor != 'dependabot[bot]' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-artifacts
+          path: coverage/

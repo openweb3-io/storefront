@@ -1,12 +1,29 @@
+import { type Metadata } from "next";
 import { ProductListByCollectionDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { ProductList } from "@/ui/components/ProductList";
+import { serverToBase64URL } from "@/lib/utils";
 
-export const metadata = {
-	title: "ACME Storefront, powered by Saleor & Next.js",
-	description:
-		"Storefront Next.js Example for building performant e-commerce experiences with Saleor - the composable, headless commerce platform for global brands.",
-};
+export async function generateMetadata(props: {
+	params: Promise<{ slug: string; channel: string }>;
+	searchParams: Promise<{ variant?: string }>;
+}): Promise<Metadata> {
+	const params = await props.params;
+
+	return {
+		title: "ACME Storefront, powered by Saleor",
+		description:
+			"Storefront Next.js Example for building performant e-commerce experiences with Saleor - the composable, headless commerce platform for global brands.",
+		other: {
+			["og:params"]: serverToBase64URL(`/${params.channel}`),
+		},
+		openGraph: {
+			url: process.env.NEXT_PUBLIC_STOREFRONT_URL
+				? process.env.NEXT_PUBLIC_STOREFRONT_URL + `/${params.channel}`
+				: undefined,
+		},
+	};
+}
 
 export default async function Page(props: { params: Promise<{ channel: string }> }) {
 	const params = await props.params;

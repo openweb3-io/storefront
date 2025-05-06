@@ -3,10 +3,10 @@
 import { Fragment } from "react";
 import clsx from "clsx";
 import { Menu, Transition } from "@headlessui/react";
-import { UserInfo } from "./components/UserInfo";
+// import { UserInfo } from "./components/UserInfo";
 import { UserAvatar } from "./components/UserAvatar";
 import { type UserDetailsFragment } from "@/gql/graphql";
-import { logout } from "@/app/actions";
+// import { logout } from "@/app/actions";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 
 type Props = {
@@ -30,7 +30,7 @@ export function UserMenu({ user }: Props) {
 				leaveTo="transform opacity-0 scale-95"
 			>
 				<Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right divide-y divide-neutral-200 bg-white py-1 text-start shadow ring-1 ring-neutral-200 ring-opacity-5 focus:outline-none">
-					<UserInfo user={user} />
+					{/* <UserInfo user={user} /> */}
 					<div className="flex flex-col px-1 py-1">
 						<Menu.Item>
 							{({ active }) => (
@@ -46,7 +46,7 @@ export function UserMenu({ user }: Props) {
 							)}
 						</Menu.Item>
 					</div>
-					<div className="flex flex-col px-1 py-1">
+					{/* <div className="flex flex-col px-1 py-1">
 						<Menu.Item>
 							{({ active }) => (
 								<form action={logout}>
@@ -62,7 +62,7 @@ export function UserMenu({ user }: Props) {
 								</form>
 							)}
 						</Menu.Item>
-					</div>
+					</div> */}
 				</Menu.Items>
 			</Transition>
 		</Menu>

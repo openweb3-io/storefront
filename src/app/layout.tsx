@@ -3,6 +3,7 @@ import "./globals.css";
 import { Suspense, type ReactNode } from "react";
 import { type Metadata } from "next";
 import { DraftModeNotification } from "@/ui/components/DraftModeNotification";
+import RuntimePlatform from "@/ui/components/RuntimePlatform";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,11 +17,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout(props: { children: ReactNode }) {
 	const { children } = props;
-
 	return (
 		<html lang="en" className="min-h-dvh">
-			<body className={`${inter.className} min-h-dvh`}>
-				{children}
+			<body className={`${inter.className} min-h-dvh bg-white`}>
+				<RuntimePlatform>{children}</RuntimePlatform>
 				<Suspense>
 					<DraftModeNotification />
 				</Suspense>

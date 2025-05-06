@@ -4,10 +4,13 @@ import edjsHTML from "editorjs-html";
 import xss from "xss";
 import { PageGetBySlugDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { serverToBase64URL } from "@/lib/utils";
 
 const parser = edjsHTML();
 
-export const generateMetadata = async (props: { params: Promise<{ slug: string }> }): Promise<Metadata> => {
+export const generateMetadata = async (props: {
+	params: Promise<{ channel: string; slug: string }>;
+}): Promise<Metadata> => {
 	const params = await props.params;
 	const { page } = await executeGraphQL(PageGetBySlugDocument, {
 		variables: { slug: params.slug },
@@ -17,6 +20,14 @@ export const generateMetadata = async (props: { params: Promise<{ slug: string }
 	return {
 		title: `${page?.seoTitle || page?.title || "Page"} · Saleor Storefront example`,
 		description: page?.seoDescription || page?.seoTitle || page?.title,
+		openGraph: {
+			url: process.env.NEXT_PUBLIC_STOREFRONT_URL
+				? process.env.NEXT_PUBLIC_STOREFRONT_URL + `/${params.channel}/pages/${params.slug}`
+				: undefined,
+		},
+		other: {
+			["og:params"]: serverToBase64URL(`/${params.channel}/pages/${params.slug}`),
+		},
 	};
 };
 

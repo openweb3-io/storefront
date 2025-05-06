@@ -19,15 +19,17 @@ export const CheckoutForm = () => {
 	const { user } = useUser();
 	const { checkout } = useCheckout();
 	const { passwordResetToken } = getQueryParams();
-
 	const [showOnlyContact, setShowOnlyContact] = useState(!!passwordResetToken);
 
 	return (
 		<div className="flex flex-col items-end">
 			<div className="flex w-full flex-col rounded">
-				<Suspense fallback={<ContactSkeleton />}>
-					<Contact setShowOnlyContact={setShowOnlyContact} />
-				</Suspense>
+				<p>User: {user?.email?.split("@")[0]}</p>
+				<div>
+					<Suspense fallback={<ContactSkeleton />}>
+						<Contact setShowOnlyContact={setShowOnlyContact} />
+					</Suspense>
+				</div>
 				<>
 					{checkout?.isShippingRequired && (
 						<Suspense fallback={<AddressSectionSkeleton />}>

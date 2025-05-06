@@ -1,14 +1,30 @@
 import { notFound, redirect } from "next/navigation";
+import { type Metadata } from "next";
 import { OrderDirection, ProductOrderField, SearchProductsDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { Pagination } from "@/ui/components/Pagination";
 import { ProductList } from "@/ui/components/ProductList";
 import { ProductsPerPage } from "@/app/config";
+import { serverToBase64URL } from "@/lib/utils";
 
-export const metadata = {
-	title: "Search products · Saleor Storefront example",
-	description: "Search products in Saleor Storefront example",
-};
+export async function generateMetadata(props: {
+	params: Promise<{ slug: string; channel: string }>;
+	searchParams: Promise<{ variant?: string }>;
+}): Promise<Metadata> {
+	const params = await props.params;
+	return {
+		title: "Search products · Saleor Storefront example",
+		description: "Search products in Saleor Storefront example",
+		openGraph: {
+			url: process.env.NEXT_PUBLIC_STOREFRONT_URL
+				? process.env.NEXT_PUBLIC_STOREFRONT_URL + `/${params.channel}/search`
+				: undefined,
+		},
+		other: {
+			["og:params"]: serverToBase64URL(`/${params.channel}/search`),
+		},
+	};
+}
 
 export default async function Page(props: {
 	searchParams: Promise<Record<"query" | "cursor", string | string[] | undefined>>;

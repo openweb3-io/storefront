@@ -18,6 +18,8 @@ export const Checkout = () => {
 
 	const isEmptyCart = checkout && !checkout.lines.length;
 
+	console.log("checkout", checkout);
+
 	return isCheckoutInvalid ? (
 		<PageNotFound />
 	) : isInitiallyAuthenticating ? (

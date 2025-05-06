@@ -3,6 +3,7 @@ import { type ResolvingMetadata, type Metadata } from "next";
 import { ProductListByCollectionDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { ProductList } from "@/ui/components/ProductList";
+import { serverToBase64URL } from "@/lib/utils";
 
 export const generateMetadata = async (
 	props: { params: Promise<{ slug: string; channel: string }> },
@@ -18,6 +19,14 @@ export const generateMetadata = async (
 		title: `${collection?.name || "Collection"} | ${collection?.seoTitle || (await parent).title?.absolute}`,
 		description:
 			collection?.seoDescription || collection?.description || collection?.seoTitle || collection?.name,
+		openGraph: {
+			url: process.env.NEXT_PUBLIC_STOREFRONT_URL
+				? process.env.NEXT_PUBLIC_STOREFRONT_URL + `/${params.channel}/collections/${params.slug}`
+				: undefined,
+		},
+		other: {
+			["og:params"]: serverToBase64URL(`/${params.channel}/collections/${params.slug}`),
+		},
 	};
 };
 

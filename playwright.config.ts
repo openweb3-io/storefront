@@ -1,7 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 import NextEnv from "@next/env";
 
-NextEnv.loadEnvConfig(".");
+if (process.env.NODE_ENV === "development") {
+	NextEnv.loadEnvConfig(".");
+} else {
+	NextEnv.loadEnvConfig(process.cwd());
+}
 
 const PORT = process.env.PORT || 3000;
 const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;
@@ -52,5 +56,5 @@ export default defineConfig({
 				command: "pnpm run start",
 				url: baseURL,
 				reuseExistingServer: !process.env.CI,
-		  },
+			},
 });
