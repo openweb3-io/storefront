@@ -3,6 +3,7 @@ import "./globals.css";
 import { Suspense, type ReactNode } from "react";
 import { type Metadata } from "next";
 import { DraftModeNotification } from "@/ui/components/DraftModeNotification";
+import RuntimePlatform from "@/ui/components/runtime-platform";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,7 @@ export default function RootLayout(props: { children: ReactNode }) {
 	return (
 		<html lang="en" className="min-h-dvh">
 			<body className={`${inter.className} min-h-dvh`}>
-				{children}
+				<RuntimePlatform>{children}</RuntimePlatform>
 				<Suspense>
 					<DraftModeNotification />
 				</Suspense>
