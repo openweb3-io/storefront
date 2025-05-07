@@ -14,7 +14,8 @@ export const useAuthRequest = () => {
 		try {
 			const { initDataRaw } = retrieveLaunchParams();
 			console.log("initDataRaw", initDataRaw);
-			const response = await fetch("https://openweb3.a.pinggy.link/api/auth", {
+			const authUrl = process?.env?.NEXT_PUBLIC_TELEGRAM_AUTH_URL;
+			const response = await fetch(authUrl!, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
