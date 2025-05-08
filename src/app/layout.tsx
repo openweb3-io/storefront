@@ -3,7 +3,7 @@ import "./globals.css";
 import { Suspense, type ReactNode } from "react";
 import { type Metadata } from "next";
 import { DraftModeNotification } from "@/ui/components/DraftModeNotification";
-import RuntimePlatform from "@/ui/components/runtime-platform";
+import RuntimePlatform from "@/ui/components/RuntimePlatform";
 
 const inter = Inter({ subsets: ["latin"] });
 

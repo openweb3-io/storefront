@@ -7,20 +7,6 @@ import { useAlerts } from "@/checkout/hooks/useAlerts";
 import { useErrorMessages } from "@/checkout/hooks/useErrorMessages";
 import { apiErrorMessages } from "@/checkout/sections/PaymentSection/errorMessages";
 
-// declare global {
-// 	interface Window {
-// 		Telegram: {
-// 			WebApp: {
-// 				initDataUnsafe: {
-// 					user?: {
-// 						id: number;
-// 					};
-// 				};
-// 			};
-// 		};
-// 	}
-// }
-
 export const useTransactionInitialize = () => {
 	const { checkout } = useCheckout();
 	const [transactionInitializeResult, transactionInitialize] = useTransactionInitializeMutation();

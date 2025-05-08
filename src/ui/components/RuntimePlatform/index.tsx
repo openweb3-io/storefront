@@ -2,8 +2,8 @@
 
 import { isTMA } from "@telegram-apps/sdk-react";
 import React, { type PropsWithChildren, useEffect, useState } from "react";
-import { BrowserLayout } from "./browser/browser-layout";
-import { TmaLayout } from "./tma/tma-layout";
+import { BrowserLayout } from "./Browser/BrowserLayout";
+import { TmaLayout } from "./TMA/TmaLayout";
 
 // eslint-disable-next-line import/no-default-export
 export default function RuntimePlatform({ children }: PropsWithChildren) {
