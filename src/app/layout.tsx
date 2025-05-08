@@ -17,7 +17,6 @@ export const metadata: Metadata = {
 
 export default function RootLayout(props: { children: ReactNode }) {
 	const { children } = props;
-	console.log("new version");
 	return (
 		<html lang="en" className="min-h-dvh">
 			<body className={`${inter.className} min-h-dvh`}>

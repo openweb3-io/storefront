@@ -1,5 +1,4 @@
 "use client";
-
 import { isTMA } from "@telegram-apps/sdk-react";
 import React, { type PropsWithChildren, useEffect, useState } from "react";
 import { BrowserLayout } from "./Browser/BrowserLayout";
@@ -7,6 +6,8 @@ import { TmaLayout } from "./TMA/TmaLayout";
 
 // eslint-disable-next-line import/no-default-export
 export default function RuntimePlatform({ children }: PropsWithChildren) {
+	console.log("new version");
+
 	const [tma, setTMA] = useState<boolean | undefined>(undefined);
 	useEffect(() => {
 		// XXX 这里要严格检查，不能 isTMA('simple')
