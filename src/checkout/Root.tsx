@@ -1,5 +1,5 @@
 "use client";
-// import { ErrorBoundary } from "react-error-boundary";
+import { ErrorBoundary } from "react-error-boundary";
 import {
 	type Client,
 	Provider as UrqlProvider,
@@ -14,7 +14,7 @@ import { useAuthChange, useSaleorAuthContext } from "@saleor/auth-sdk/react";
 import { useState } from "react";
 import { alertsContainerProps } from "./hooks/useAlerts/consts";
 import { RootViews } from "./views/RootViews";
-// import { PageNotFound } from "@/checkout/views/PageNotFound";
+import { PageNotFound } from "@/checkout/views/PageNotFound";
 import "./index.css";
 
 export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
@@ -39,9 +39,9 @@ export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
 	return (
 		<UrqlProvider value={urqlClient}>
 			<ToastContainer {...alertsContainerProps} />
-			{/* <ErrorBoundary FallbackComponent={PageNotFound}> */}
-			<RootViews />
-			{/* </ErrorBoundary> */}
+			<ErrorBoundary FallbackComponent={PageNotFound}>
+				<RootViews />
+			</ErrorBoundary>
 		</UrqlProvider>
 	);
 };
