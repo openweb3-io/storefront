@@ -15,9 +15,15 @@ export const PaymentMethods = () => {
 		return <PaymentSectionSkeleton />;
 	}
 
+	console.log(
+		availablePaymentGateways,
+		Reflect.get(availablePaymentGateways, "map"),
+		paymentMethodToComponent,
+	);
+
 	return (
 		<div className="gap-y-8">
-			{availablePaymentGateways?.map((gateway) => {
+			{/* {availablePaymentGateways?.map((gateway) => {
 				const Component = paymentMethodToComponent[gateway.id];
 
 				return (
@@ -27,7 +33,7 @@ export const PaymentMethods = () => {
 						config={gateway}
 					/>
 				);
-			})}
+			})} */}
 		</div>
 	);
 };
