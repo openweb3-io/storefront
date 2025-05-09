@@ -1,3 +1,4 @@
+import { map } from "lodash-es";
 import { paymentMethodToComponent } from "./supportedPaymentApps";
 import { PaymentSectionSkeleton } from "@/checkout/sections/PaymentSection/PaymentSectionSkeleton";
 import { usePayments } from "@/checkout/sections/PaymentSection/usePayments";
@@ -17,9 +18,8 @@ export const PaymentMethods = () => {
 
 	return (
 		<div className="gap-y-8">
-			{availablePaymentGateways?.map((gateway) => {
+			{map(availablePaymentGateways, (gateway) => {
 				const Component = paymentMethodToComponent[gateway.id];
-
 				return (
 					<Component
 						key={gateway.id}
