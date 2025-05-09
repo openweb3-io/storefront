@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { retrieveLaunchParams } from "@telegram-apps/sdk";
+import { openweb3GatewayId } from "@/checkout/sections/PaymentSection/Openweb3Component/types";
 
 interface AuthResponse {
 	// 根据实际响应数据结构定义
@@ -19,7 +20,7 @@ export const useAuthRequest = () => {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					platform: "app.saleor.openweb3",
+					platform: openweb3GatewayId,
 				},
 				body: JSON.stringify({
 					initDataRaw: initDataRaw,

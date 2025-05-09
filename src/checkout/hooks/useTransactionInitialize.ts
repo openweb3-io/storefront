@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 // import { isTMA } from "@telegram-apps/sdk";
 import { isTMA, retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { openweb3GatewayId } from "../sections/PaymentSection/Openweb3Component/types";
 import { useTransactionInitializeMutation } from "@/checkout/graphql";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { useAlerts } from "@/checkout/hooks/useAlerts";
@@ -21,7 +22,7 @@ export const useTransactionInitialize = () => {
 			const result = await transactionInitialize({
 				checkoutId: checkout.id,
 				paymentGateway: {
-					id: "app.saleor.openweb3",
+					id: openweb3GatewayId,
 					data: {
 						metadata: {
 							userId,
