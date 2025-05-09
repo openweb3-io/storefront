@@ -29,11 +29,9 @@ function Loader({ children }: PropsWithChildren) {
 	const { loading, postAuth } = useAuthRequest();
 
 	useEffect(() => {
-		if (postAuth) {
-			void postAuth();
-		}
+		void postAuth();
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	}, [postAuth]);
+	}, []);
 
 	if (loading) {
 		return <></>;
