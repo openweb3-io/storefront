@@ -1,40 +1,35 @@
 "use client";
 
-import { type FormEventHandler, useEffect, useMemo } from "react";
-// import { usePaymentProcessingScreen } from "../PaymentProcessingScreen";
+import { type FormEventHandler, useMemo, useState } from "react";
 import { get } from "lodash-es";
+import { usePaymentStatus } from "../utils";
+import { useAlerts } from "@/checkout/hooks/useAlerts";
 import {
 	useCheckoutValidationActions,
 	useCheckoutValidationState,
 	anyFormsValidating,
 	areAllFormsValid,
 } from "@/checkout/state/checkoutValidationStateStore";
-import {
-	useCheckoutUpdateState,
-	areAnyRequestsInProgress,
-	// useCheckoutUpdateStateActions,
-	// hasFinishedApiChangesWithNoError,
-} from "@/checkout/state/updateStateStore";
+import { useCheckoutUpdateState, areAnyRequestsInProgress } from "@/checkout/state/updateStateStore";
 import { useEvent } from "@/checkout/hooks/useEvent";
 import { useUser } from "@/checkout/hooks/useUser";
-// import { useAlerts } from "@/checkout/hooks/useAlerts";
-import { useCheckoutComplete } from "@/checkout/hooks/useCheckoutComplete";
-import { getQueryParams } from "@/checkout/lib/utils/url";
 import { useTransactionInitialize } from "@/checkout/hooks/useTransactionInitialize";
+import { useCheckoutComplete } from "@/checkout/hooks/useCheckoutComplete";
+import { useCheckout } from "@/checkout/hooks/useCheckout";
 
 export function Openweb3Element() {
+	const [text, setText] = useState("Generate order");
+	const [submitLoading, setSubmitLoading] = useState(false);
 	const { authenticated } = useUser();
-	// const { showCustomErrors } = useAlerts();
-
 	const checkoutUpdateState = useCheckoutUpdateState();
 	const anyRequestsInProgress = areAnyRequestsInProgress(checkoutUpdateState);
-	// const finishedApiChangesWithNoError = hasFinishedApiChangesWithNoError(checkoutUpdateState);
-	// const { setSubmitInProgress, setShouldRegisterUser } = useCheckoutUpdateStateActions();
 	const { validateAllForms } = useCheckoutValidationActions();
 	const { validationState } = useCheckoutValidationState();
+	const { checkout } = useCheckout();
+	const { showSuccess } = useAlerts();
+	const paymentStatus = usePaymentStatus(checkout);
+	const { completingCheckout } = useCheckoutComplete();
 
-	// const { setIsProcessingPayment } = usePaymentProcessingScreen();
-	const { onCheckoutComplete, completingCheckout } = useCheckoutComplete();
 	const { initializeTransaction, transactionInitializeResult } = useTransactionInitialize();
 
 	console.log("transactionInitializeResult", transactionInitializeResult);
@@ -49,26 +44,37 @@ export function Openweb3Element() {
 		};
 	}, [transactionInitializeResult]);
 
-	// const processPayment = async () => {
-	// 	try {
-	// 		// 这里添加Openweb3的支付处理逻辑
-	// 		await onCheckoutComplete();
-	// 	} catch (error) {
-	// 		console.error(error);
-	// 		setIsProcessingPayment(false);
-	// 		showCustomErrors([{ message: "支付处理过程中发生错误" }]);
-	// 	}
-	// };
-
 	// 处理表单提交
-	const onSubmitInitialize: FormEventHandler<HTMLFormElement> = useEvent(async (e) => {
+	const onSubmit: FormEventHandler<HTMLFormElement> = useEvent(async (e) => {
 		e.preventDefault();
 
 		validateAllForms(authenticated);
-		// setShouldRegisterUser(true);
-		// // await processPayment();
+
+		// // 等待表单验证完成
+		if (anyFormsValidating(validationState)) {
+			return;
+		}
+
+		// // 检查表单是否全部验证通过
+		if (!areAllFormsValid(validationState)) {
+			return;
+		}
+
+		// 检查支付状态
+		if (!completingCheckout && paymentStatus === "paidInFull") {
+			showSuccess("Order completed");
+			setText("Order completed");
+			return;
+		}
+
 		if (!initializeTransactionState.redirectUrl) {
-			await initializeTransaction();
+			try {
+				setSubmitLoading(true);
+				await initializeTransaction();
+				setText("Pay Now");
+			} finally {
+				setSubmitLoading(false);
+			}
 			return;
 		}
 
@@ -76,46 +82,17 @@ export function Openweb3Element() {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			window.open(initializeTransactionState.redirectUrl);
 		}
-		// setIsLoading(true);
-		// setSubmitInProgress(true);
 	});
 
-	// 处理支付重定向
-	useEffect(() => {
-		const { processingPayment } = getQueryParams();
-		if (!processingPayment) {
-			return;
-		}
-
-		if (!completingCheckout) {
-			void onCheckoutComplete();
-		}
-	}, [completingCheckout, onCheckoutComplete]);
-
-	// 处理表单验证和支付提交
-	useEffect(() => {
-		anyFormsValidating(validationState);
-		areAllFormsValid(validationState);
-	}, [validationState]);
-
 	return (
-		<form className="my-8 flex flex-col gap-y-6" onSubmit={onSubmitInitialize}>
-			{initializeTransactionState.type === "CHARGE_SUCCESS" && (
-				<div className="grid grid-cols-1">
-					<div className="flex items-center justify-center rounded-md border border-gray-300 p-4">
-						<span className="text-sm font-medium">支付成功</span>
-					</div>
-				</div>
-			)}
+		<form className="my-8 flex flex-col gap-y-6" onSubmit={onSubmit}>
 			<label>Openweb3</label>
 			<button
 				className="h-12 items-center rounded-md bg-neutral-900 px-6 py-3 text-base font-medium leading-6 text-white shadow hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-70 hover:disabled:bg-neutral-700 aria-disabled:cursor-not-allowed aria-disabled:opacity-70 hover:aria-disabled:bg-neutral-700"
-				disabled={anyRequestsInProgress}
+				disabled={anyRequestsInProgress || submitLoading}
 				type="submit"
 			>
-				<span className="button-text">
-					{initializeTransactionState.redirectUrl ? "支付订单" : "生成订单"}
-				</span>
+				<span className="button-text">{text}</span>
 			</button>
 		</form>
 	);
