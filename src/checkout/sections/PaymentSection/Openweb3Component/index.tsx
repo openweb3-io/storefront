@@ -1,7 +1,6 @@
 "use client";
 
-import { type FormEventHandler, useMemo, useState } from "react";
-import { get } from "lodash-es";
+import { type FormEventHandler, useState } from "react";
 import { usePaymentStatus } from "../utils";
 import { useAlerts } from "@/checkout/hooks/useAlerts";
 import {
@@ -21,6 +20,7 @@ export function Openweb3Element() {
 	const [text, setText] = useState("Generate order");
 	const [submitLoading, setSubmitLoading] = useState(false);
 	const { authenticated } = useUser();
+	const { showCustomErrors } = useAlerts();
 	const checkoutUpdateState = useCheckoutUpdateState();
 	const anyRequestsInProgress = areAnyRequestsInProgress(checkoutUpdateState);
 	const { validateAllForms } = useCheckoutValidationActions();
@@ -28,21 +28,11 @@ export function Openweb3Element() {
 	const { checkout } = useCheckout();
 	const { showSuccess } = useAlerts();
 	const paymentStatus = usePaymentStatus(checkout);
-	const { completingCheckout } = useCheckoutComplete();
+	const { onCheckoutComplete, completingCheckout } = useCheckoutComplete();
 
 	const { initializeTransaction, transactionInitializeResult } = useTransactionInitialize();
 
 	console.log("transactionInitializeResult", transactionInitializeResult);
-
-	const initializeTransactionState = useMemo(() => {
-		const transactionInitialize = get(transactionInitializeResult, "data.transactionInitialize", {});
-		return {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			redirectUrl: get(transactionInitialize, "data.redirectUrl", "") || "",
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			type: get(transactionInitialize, "transactionEvent.type", "") || "",
-		};
-	}, [transactionInitializeResult]);
 
 	// 处理表单提交
 	const onSubmit: FormEventHandler<HTMLFormElement> = useEvent(async (e) => {
@@ -67,20 +57,28 @@ export function Openweb3Element() {
 			return;
 		}
 
-		if (!initializeTransactionState.redirectUrl) {
-			try {
-				setSubmitLoading(true);
-				await initializeTransaction();
-				setText("Pay Now");
-			} finally {
-				setSubmitLoading(false);
+		try {
+			setSubmitLoading(true);
+			const res = await initializeTransaction();
+			setSubmitLoading(false);
+			setText("Pay Now");
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			const redirectUrl = res?.data?.redirectUrl;
+			const type = res?.transactionEvent?.type;
+			if (redirectUrl && type === "CHARGE_REQUEST") {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+				window.open(`${redirectUrl}`);
+				setText("Checkout Paid");
 			}
-			return;
-		}
-
-		if (initializeTransactionState.redirectUrl) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			window.open(initializeTransactionState.redirectUrl);
+			if (redirectUrl && type === "CHARGE_SUCCESS") {
+				void onCheckoutComplete();
+				setText("Paid");
+			}
+		} catch (error) {
+			console.error(error);
+			showCustomErrors([{ message: JSON.stringify(error) }]);
+		} finally {
+			setSubmitLoading(false);
 		}
 	});
 

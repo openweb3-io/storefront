@@ -26,7 +26,8 @@ export const useTransactionInitialize = () => {
 					data: {
 						metadata: {
 							userId,
-							platform: isTelegram ? "TELEGRAM" : "DEJAY",
+							platform: window.navigator.userAgent.includes("OpenWeb3") ? "DEJAY" : "TELEGRAM",
+							domain: process.env.NEXT_PUBLIC_SALEOR_API_URL,
 						},
 					},
 				},
