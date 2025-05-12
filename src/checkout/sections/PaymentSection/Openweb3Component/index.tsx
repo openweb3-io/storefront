@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEventHandler, useState } from "react";
+import { openLink, openTelegramLink } from "@telegram-apps/sdk-react";
 import { usePaymentStatus } from "../utils";
 import { useAlerts } from "@/checkout/hooks/useAlerts";
 import {
@@ -63,12 +64,20 @@ export function Openweb3Element() {
 			setSubmitLoading(false);
 			setText("Pay Now");
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			const redirectUrl = res?.data?.redirectUrl;
+			const redirectUrl = res?.data?.redirectUrl as URL | string;
 			const type = res?.transactionEvent?.type;
 			if (redirectUrl && type === "CHARGE_REQUEST") {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-				window.open(`${redirectUrl}`);
 				setText("Checkout Paid");
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+				if (openTelegramLink.isAvailable()) {
+					openTelegramLink(redirectUrl);
+					return;
+				}
+
+				if (openLink.isAvailable()) {
+					openLink(redirectUrl);
+					return;
+				}
 			}
 			if (redirectUrl && type === "CHARGE_SUCCESS") {
 				void onCheckoutComplete();
