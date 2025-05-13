@@ -66,19 +66,28 @@ export function Openweb3Element() {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const redirectUrl = res?.data?.redirectUrl as URL | string;
 			const type = res?.transactionEvent?.type;
+
+			console.log("res: ", res);
+
 			if (redirectUrl && type === "CHARGE_REQUEST") {
 				setText("Checkout Paid");
+
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 				if (openTelegramLink.isAvailable()) {
+					console.log("openTelegramLink", redirectUrl);
 					openTelegramLink(redirectUrl);
 					return;
 				}
 
 				if (openLink.isAvailable()) {
+					console.log("openLink", redirectUrl);
 					openLink(redirectUrl);
 					return;
 				}
+
+				console.log("not supported openTelegramLink or openLink");
 			}
+
 			if (redirectUrl && type === "CHARGE_SUCCESS") {
 				void onCheckoutComplete();
 				setText("Paid");
