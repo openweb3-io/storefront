@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 import { $debug, init, initData, miniApp, themeParams } from "@telegram-apps/sdk-react";
 import { useAuthRequest } from "../hooks";
 import { useClientOnce } from "@/hooks/use-client-once";
@@ -28,10 +28,10 @@ const initSDK = (debug: boolean) => {
 function Loader({ children }: PropsWithChildren) {
 	const { loading, postAuth } = useAuthRequest();
 
-	useEffect(() => {
+	useClientOnce(() => {
 		void postAuth();
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	}, []);
+	});
 
 	if (loading) {
 		return <></>;
