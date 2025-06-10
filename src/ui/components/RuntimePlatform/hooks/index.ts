@@ -25,7 +25,9 @@ export const useAuthRequest = () => {
 		try {
 			const { initDataRaw } = retrieveLaunchParams();
 			console.log("initDataRaw", initDataRaw);
-			const url = `${process?.env?.NEXT_PUBLIC_AUTH_URL}/api/auth`;
+			const url = `${process.env.NEXT_PUBLIC_AUTH_URL}/api/auth`;
+			console.log("url:", url);
+			console.log("NEXT_PUBLIC_AUTH_URL.env:", process.env.NEXT_PUBLIC_AUTH_URL);
 			const response = await fetch(url, {
 				method: "POST",
 				credentials: "include",
@@ -80,7 +82,9 @@ export const useBindEmailRequest = () => {
 		try {
 			const { initDataRaw } = retrieveLaunchParams();
 			console.log("initDataRaw", initDataRaw);
-			const url = `${process?.env?.NEXT_PUBLIC_AUTH_URL}/api/bindemail`;
+			const url = `${process.env.NEXT_PUBLIC_AUTH_URL}/api/bindemail`;
+			console.log("url:", url);
+			console.log("NEXT_PUBLIC_AUTH_URL.env:", process.env.NEXT_PUBLIC_AUTH_URL);
 			const response = await fetch(url, {
 				method: "POST",
 				credentials: "include",
