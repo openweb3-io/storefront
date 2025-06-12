@@ -19,7 +19,7 @@ export const Contact: FC<ContactProps> = ({ setShowOnlyContact }) => {
 	useCustomerAttach();
 	const { user, authenticated } = useUser();
 	const [email, setEmail] = useState(user?.email || "");
-
+	console.log("email", email, user);
 	const [passwordResetShown, setPasswordResetShown] = useState(false);
 
 	const selectInitialSection = (): Section => {

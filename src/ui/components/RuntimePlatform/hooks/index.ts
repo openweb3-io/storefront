@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
-import { usePathname } from "next/navigation";
 import { openweb3GatewayId } from "@/checkout/sections/PaymentSection/Openweb3Component/types";
+import { useAlerts } from "@/checkout/hooks/useAlerts/useAlerts";
 
 interface AuthResponse {
 	code: number;
@@ -19,15 +19,12 @@ interface AuthResponse {
 
 export const useAuthRequest = () => {
 	const [loading, setLoading] = useState(false);
-	const pathname = usePathname();
-	const postAuth = async (): Promise<void> => {
+	const { showCustomErrors } = useAlerts();
+	const postAuth = async (): Promise<AuthResponse | void> => {
 		setLoading(true);
 		try {
 			const { initDataRaw } = retrieveLaunchParams();
-			console.log("initDataRaw", initDataRaw);
 			const url = `${process.env.NEXT_PUBLIC_AUTH_URL}/api/auth`;
-			console.log("url:", url);
-			console.log("NEXT_PUBLIC_AUTH_URL.env:", process.env.NEXT_PUBLIC_AUTH_URL);
 			const response = await fetch(url, {
 				method: "POST",
 				credentials: "include",
@@ -46,22 +43,18 @@ export const useAuthRequest = () => {
 
 			const res = (await response.json()) as AuthResponse;
 
-			if (res?.data?.isRedirect && pathname !== "/register" && res.code === 301) {
-				console.log("register from", pathname);
-				window.location.replace("/register");
-				return;
+			if (res.code === -1) {
+				showCustomErrors([{ message: res.message }]);
 			}
 
-			try {
-				if (res.code === 0 && res?.data?.localStorage) {
-					res?.data?.localStorage.forEach((item) => {
-						const [key, value] = item;
-						window.localStorage.setItem(key, value);
-					});
-				}
-			} catch (error) {
-				console.error("LocalStorage error:", error);
+			if (res.code === 0 && res?.data?.localStorage) {
+				res?.data?.localStorage.forEach((item) => {
+					const [key, value] = item;
+					window.localStorage.setItem(key, value);
+				});
 			}
+
+			return res;
 		} catch (error) {
 			console.log("Auth request error");
 		} finally {
@@ -77,14 +70,60 @@ export const useAuthRequest = () => {
 
 export const useBindEmailRequest = () => {
 	const [loading, setLoading] = useState(false);
-	const postBindEmail = async (email: string): Promise<AuthResponse | void> => {
+	const { showCustomErrors } = useAlerts();
+	const postBindEmail = async (email: string, code: string): Promise<AuthResponse | void> => {
 		setLoading(true);
 		try {
 			const { initDataRaw } = retrieveLaunchParams();
-			console.log("initDataRaw", initDataRaw);
-			const url = `${process.env.NEXT_PUBLIC_AUTH_URL}/api/bindemail`;
-			console.log("url:", url);
-			console.log("NEXT_PUBLIC_AUTH_URL.env:", process.env.NEXT_PUBLIC_AUTH_URL);
+			const url = `${process.env.NEXT_PUBLIC_AUTH_URL}/api/email/bind`;
+			const response = await fetch(url, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+					platform: openweb3GatewayId,
+				},
+				body: JSON.stringify({
+					initDataRaw: initDataRaw,
+					email,
+					code,
+				}),
+			});
+
+			if (!response.ok) {
+				console.log("Register email request failed");
+			}
+
+			const res = (await response.json()) as AuthResponse;
+
+			if (res.code === -1) {
+				showCustomErrors([{ message: res.message }]);
+			}
+
+			return res;
+		} catch (error) {
+			console.log("Register email request error");
+		} finally {
+			setTimeout(() => {
+				setLoading(false);
+			}, 10e3);
+		}
+	};
+
+	return {
+		postBindEmail,
+		loading,
+	};
+};
+
+export const useSendEmailCodeRequest = () => {
+	const [loading, setLoading] = useState(false);
+	const { showCustomErrors } = useAlerts();
+	const postSendEmailCode = async (email: string): Promise<AuthResponse | void> => {
+		setLoading(true);
+		try {
+			const { initDataRaw } = retrieveLaunchParams();
+			const url = `${process.env.NEXT_PUBLIC_AUTH_URL}/api/email/sendcode`;
 			const response = await fetch(url, {
 				method: "POST",
 				credentials: "include",
@@ -104,13 +143,11 @@ export const useBindEmailRequest = () => {
 
 			const res = (await response.json()) as AuthResponse;
 
-			if (res.code !== 0) {
-				console.log(res.message);
-				setLoading(false);
-				return res;
+			if (res.code === -1) {
+				showCustomErrors([{ message: res.message }]);
 			}
 
-			if (res.code === 0) return res;
+			return res;
 		} catch (error) {
 			console.log("Register email request error");
 		} finally {
@@ -121,7 +158,7 @@ export const useBindEmailRequest = () => {
 	};
 
 	return {
-		postBindEmail,
+		postSendEmailCode,
 		loading,
 	};
 };

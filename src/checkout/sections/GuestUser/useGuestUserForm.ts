@@ -20,6 +20,7 @@ export interface GuestUserFormData {
 	email: string;
 	password: string;
 	createAccount: boolean;
+	code: string;
 }
 
 interface GuestUserFormProps {
@@ -44,12 +45,16 @@ export const useGuestUserForm = ({ initialEmail }: GuestUserFormProps) => {
 		password: string().when(["createAccount"], ([createAccount], field) =>
 			createAccount ? field.min(8, "Password must be at least 8 characters").required() : field,
 		),
+		code: string().when(["createAccount"], ([createAccount], field) =>
+			createAccount ? field.min(8, "Verify code must be at least 6 characters").required() : field,
+		),
 	}) as Schema<GuestUserFormData>;
 
 	const defaultFormData: GuestUserFormData = {
 		email: initialEmail || checkout.email || "",
 		password: "",
 		createAccount: false,
+		code: "",
 	};
 
 	const onSubmit = useFormSubmit<GuestUserFormData, typeof userRegister>(
