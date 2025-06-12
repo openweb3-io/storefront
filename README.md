@@ -129,6 +129,33 @@ To start the development server, run the following:
 pnpm dev
 ```
 
+<a id="env" style="text-decoration: underline;text-decoration: none;color: inherit;">Environment variables required at runtime<a/>
+
+```shell
+# Replace URL with your Saleor backend. Make sure to keep the slash at the end.
+PORT=80
+BASE_URL=localhost
+
+# Your sales api
+NEXT_PUBLIC_SALEOR_API_URL=https://store-openweb3.saleor.cloud/graphql/
+
+# Storefront url
+NEXT_PUBLIC_STOREFRONT_URL=https://4b86554eee8059fe9598086f48e3feb6.serveo.net
+
+# Token used for fetching channels（option）
+SALEOR_APP_TOKEN=
+
+# Tg/Dejay auth url
+NEXT_PUBLIC_AUTH_URL=https://a865-103-152-220-14.ngrok-free.app
+
+# Default field provider
+NEXT_PUBLIC_TELEGRAM_MOCK_PROVIDER=telegram
+
+# Default field init data
+NEXT_PUBLIC_TELEGRAM_MOCK_INIT_DATA="user%3D%257B%2522id%2522%253A5861990984%252C%2522first_name%2522%253A%2522King%2522%252C%2522last_name%2522%253A%2522%2522%252C%2522username%2522%253A%2522Svenlai666%2522%252C%2522language_code%2522%253A%2522zh-hans%2522%252C%2522allows_write_to_pm%2522%253Atrue%252C%2522photo_url%2522%253A%2522https%253A%255C%252F%255C%252Ft.me%255C%252Fi%255C%252Fuserpic%255C%252F320%255C%252FfOso4OMYHXqI0CdCO2hxaqi5A23cXtUBjFLnUoRJa_aPy1E8DABF_Hm179IT0QOn.svg%2522%257D%26chat_instance%3D3930809717662463213%26chat_type%3Dprivate%26auth_date%3D1745999001%26signature%3DCVuFy8jWC8PNwkWdbA7tPueIbNqkUNxtillFjZQGL2yY47BhtAhh6QGqc3UwLwq9QYG6eMBSf-pcNibA49YUCA%26hash%3D5fb2ea078b8265c57271590e5a41f7a050f9892c25defd98fb7b380e3305d228&tgWebAppVersion=8.0&tgWebAppPlatform=macos&tgWebAppThemeParams=%7B%22secondary_bg_color%22%3A%22%23131415%22%2C%22subtitle_text_color%22%3A%22%23b1c3d5%22%2C%22text_color%22%3A%22%23ffffff%22%2C%22section_header_text_color%22%3A%22%23b1c3d5%22%2C%22destructive_text_color%22%3A%22%23ef5b5b%22%2C%22bottom_bar_bg_color%22%3A%22%23213040%22%2C%22section_bg_color%22%3A%22%2318222d%22%2C%22button_text_color%22%3A%22%23ffffff%22%2C%22accent_text_color%22%3A%22%232ea6ff%22%2C%22button_color%22%3A%22%232ea6ff%22%2C%22link_color%22%3A%22%2362bcf9%22%2C%22bg_color%22%3A%22%2318222d%22%2C%22hint_color%22%3A%22%23b1c3d5%22%2C%22header_bg_color%22%3A%22%23131415%22%2C%22section_separator_color%22%3A%22%23213040%22%7D"
+
+```
+
 The app is now running at `http://localhost:3000`.
 
 > NOTE:
