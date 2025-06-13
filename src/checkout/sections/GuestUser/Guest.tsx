@@ -80,16 +80,18 @@ export const Guest: React.FC<GuestProps> = ({ onEmailChange, email: initialEmail
 						}}
 					/>
 					<div className="mt-2 flex items-center justify-center gap-2">
-						<TextInput
-							required
-							name="code"
-							label="Verify code"
-							placeholder="Enter code"
-							className="flex-1"
-							onChange={(event) => {
-								handleChange(event);
-							}}
-						/>
+						<div className="flex-1">
+							<TextInput
+								required
+								name="code"
+								label="Verify code"
+								placeholder="Enter code"
+								className="w-full"
+								onChange={(event) => {
+									handleChange(event);
+								}}
+							/>
+						</div>
 						<Button
 							className="mt-4 min-w-[5rem]"
 							label={countdown > 0 ? `${countdown}s` : "Send"}

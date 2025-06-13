@@ -43,7 +43,7 @@ export const useAuthRequest = () => {
 
 			const res = (await response.json()) as AuthResponse;
 
-			if (res.code === -1) {
+			if (res.code === -1 && res.message) {
 				showCustomErrors([{ message: res.message }]);
 			}
 
@@ -96,7 +96,7 @@ export const useBindEmailRequest = () => {
 
 			const res = (await response.json()) as AuthResponse;
 
-			if (res.code === -1) {
+			if (res.code === -1 && res.message) {
 				showCustomErrors([{ message: res.message }]);
 			}
 
@@ -143,7 +143,7 @@ export const useSendEmailCodeRequest = () => {
 
 			const res = (await response.json()) as AuthResponse;
 
-			if (res.code === -1) {
+			if (res.code === -1 && res.message) {
 				showCustomErrors([{ message: res.message }]);
 			}
 
