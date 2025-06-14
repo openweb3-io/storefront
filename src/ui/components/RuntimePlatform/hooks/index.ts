@@ -11,7 +11,8 @@ interface AuthResponse {
 		detail: {
 			[key: string]: any;
 		};
-		localStorage: string[][];
+		localStorage: string[][] | string[];
+		clear?: boolean;
 		isRedirect: boolean;
 	};
 	[key: string]: any;
@@ -43,7 +44,7 @@ export const useAuthRequest = () => {
 
 			const res = (await response.json()) as AuthResponse;
 
-			if (res.code === -1 && res.message) {
+			if (res.code === -1 && !!res.message) {
 				showCustomErrors([{ message: res.message }]);
 			}
 
@@ -52,6 +53,13 @@ export const useAuthRequest = () => {
 					const [key, value] = item;
 					window.localStorage.setItem(key, value);
 				});
+
+				if (res?.data?.clear) {
+					res?.data?.localStorage.forEach((name) => {
+						console.log("remove item", name);
+						window.localStorage.removeItem(name as string);
+					});
+				}
 			}
 
 			return res;
@@ -96,7 +104,7 @@ export const useBindEmailRequest = () => {
 
 			const res = (await response.json()) as AuthResponse;
 
-			if (res.code === -1 && res.message) {
+			if (res.code === -1 && !!res.message) {
 				showCustomErrors([{ message: res.message }]);
 			}
 
@@ -143,7 +151,7 @@ export const useSendEmailCodeRequest = () => {
 
 			const res = (await response.json()) as AuthResponse;
 
-			if (res.code === -1 && res.message) {
+			if (res.code === -1 && !!res.message) {
 				showCustomErrors([{ message: res.message }]);
 			}
 

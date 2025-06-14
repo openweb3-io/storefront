@@ -59,7 +59,7 @@ function Loader({ children }: PropsWithChildren) {
 		const startParam = retrieveLaunchParams()?.startParam;
 		console.log("startParam", startParam);
 
-		localStorage.setItem("temp-startParam", JSON.stringify(startParam));
+		sessionStorage.setItem("temp-startParam", JSON.stringify(startParam));
 
 		if (!startParam) return;
 
