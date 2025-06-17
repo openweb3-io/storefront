@@ -34,7 +34,7 @@ export async function generateMetadata(
 	if (!product) {
 		notFound();
 	}
-
+	console.log("product", product);
 	const productName = product.seoTitle || product.name;
 	const variantName = product.variants?.find(({ id }) => id === searchParams.variant)?.name;
 	const productNameAndVariant = variantName ? `${productName} - ${variantName}` : productName;
@@ -100,6 +100,7 @@ export default async function Page(props: {
 	}
 
 	const firstImage = product.thumbnail;
+	console.log("firstImage", product);
 	const description = product?.description ? parser.parse(JSON.parse(product?.description)) : null;
 
 	const variants = product.variants;
