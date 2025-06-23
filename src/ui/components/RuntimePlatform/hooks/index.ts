@@ -7,13 +7,21 @@ import { useAlerts } from "@/checkout/hooks/useAlerts/useAlerts";
 interface AuthResponse {
 	code: number;
 	message: string;
-	data: {
-		detail: {
-			[key: string]: any;
+	data?: {
+		user?: {
+			email?: string;
+			firstName?: string;
+			lastName?: string;
 		};
-		localStorage: string[][] | string[];
-		clear?: boolean;
-		isRedirect: boolean;
+		token?: string;
+		refreshToken?: string;
+		csrfToken?: string;
+		errors?: Array<{
+			field?: string;
+			message?: string;
+			code?: string;
+		}>;
+		[key: string]: any;
 	};
 	[key: string]: any;
 }
@@ -21,12 +29,18 @@ interface AuthResponse {
 export const useAuthRequest = () => {
 	const [loading, setLoading] = useState(false);
 	const { showCustomErrors } = useAlerts();
+
 	const postAuth = async (): Promise<AuthResponse | void> => {
 		setLoading(true);
 		try {
 			const { initDataRaw } = retrieveLaunchParams();
-			const url = `${process.env.NEXT_PUBLIC_AUTH_URL}/api/auth`;
-			const response = await fetch(url, {
+
+			if (!initDataRaw) {
+				showCustomErrors([{ message: "No init data available" }]);
+				return;
+			}
+
+			const response = await fetch("/api/auth", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -40,31 +54,51 @@ export const useAuthRequest = () => {
 
 			if (!response.ok) {
 				console.log("Auth request failed");
+				showCustomErrors([{ message: "Authentication request failed" }]);
+				return;
 			}
 
 			const res = (await response.json()) as AuthResponse;
 
 			if (res.code === -1 && !!res.message) {
 				showCustomErrors([{ message: res.message }]);
+				const saleorApiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
+				if (saleorApiUrl) {
+					window.localStorage.removeItem(`${saleorApiUrl}+saleor_auth_access_token`);
+					window.localStorage.removeItem(`${saleorApiUrl}+saleor_auth_module_refresh_token`);
+					window.localStorage.removeItem(`${saleorApiUrl}+saleor_auth_module_auth_state`);
+					window.localStorage.removeItem(`${saleorApiUrl}+saleor_auth_module_csrf_token`);
+				}
 			}
 
-			if (res.code === 0 && res?.data?.localStorage) {
-				res?.data?.localStorage.forEach((item) => {
-					const [key, value] = item;
-					window.localStorage.setItem(key, value);
-				});
+			if (res.code === 0 && res?.data) {
+				const { token, refreshToken, csrfToken } = res.data;
+				const saleorApiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
 
-				if (res?.data?.clear) {
-					res?.data?.localStorage.forEach((name) => {
-						console.log("remove item", name);
-						window.localStorage.removeItem(name as string);
-					});
+				if (token && refreshToken && saleorApiUrl) {
+					window.localStorage.setItem(`${saleorApiUrl}+saleor_auth_access_token`, token);
+					window.localStorage.setItem(`${saleorApiUrl}+saleor_auth_module_refresh_token`, refreshToken);
+					window.localStorage.setItem(`${saleorApiUrl}+saleor_auth_module_auth_state`, "signedIn");
+
+					if (csrfToken) {
+						window.localStorage.setItem(`${saleorApiUrl}+saleor_auth_module_csrf_token`, csrfToken);
+					}
 				}
 			}
 
 			return res;
 		} catch (error) {
-			console.log("Auth request error");
+			console.log("Auth request error:", error);
+			showCustomErrors([{ message: "Authentication request failed" }]);
+
+			// 网络错误时也移除localStorage
+			const saleorApiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
+			if (saleorApiUrl) {
+				window.localStorage.removeItem(`${saleorApiUrl}+saleor_auth_access_token`);
+				window.localStorage.removeItem(`${saleorApiUrl}+saleor_auth_module_refresh_token`);
+				window.localStorage.removeItem(`${saleorApiUrl}+saleor_auth_module_auth_state`);
+				window.localStorage.removeItem(`${saleorApiUrl}+saleor_auth_module_csrf_token`);
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -76,15 +110,31 @@ export const useAuthRequest = () => {
 	};
 };
 
-export const useBindEmailRequest = () => {
+export const useEmailChangeRequest = () => {
 	const [loading, setLoading] = useState(false);
-	const { showCustomErrors } = useAlerts();
-	const postBindEmail = async (email: string, code: string): Promise<AuthResponse | void> => {
+	const { showCustomErrors, showSuccess } = useAlerts();
+
+	const postEmailChange = async (oldEmail: string, newEmail: string): Promise<AuthResponse | void> => {
 		setLoading(true);
 		try {
 			const { initDataRaw } = retrieveLaunchParams();
-			const url = `${process.env.NEXT_PUBLIC_AUTH_URL}/api/email/bind`;
-			const response = await fetch(url, {
+
+			if (!initDataRaw) {
+				showCustomErrors([{ message: "No init data available" }]);
+				return;
+			}
+
+			if (!oldEmail) {
+				showCustomErrors([{ message: "Old email is required" }]);
+				return;
+			}
+
+			if (!newEmail) {
+				showCustomErrors([{ message: "New email is required" }]);
+				return;
+			}
+
+			const response = await fetch("/api/email-change", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -93,13 +143,15 @@ export const useBindEmailRequest = () => {
 				},
 				body: JSON.stringify({
 					initDataRaw: initDataRaw,
-					email,
-					code,
+					oldEmail,
+					newEmail,
 				}),
 			});
 
 			if (!response.ok) {
-				console.log("Register email request failed");
+				console.log("Email change request failed");
+				showCustomErrors([{ message: "Email change request failed" }]);
+				return;
 			}
 
 			const res = (await response.json()) as AuthResponse;
@@ -108,9 +160,14 @@ export const useBindEmailRequest = () => {
 				showCustomErrors([{ message: res.message }]);
 			}
 
+			if (res.code === 0) {
+				showSuccess("Email change request sent successfully");
+			}
+
 			return res;
 		} catch (error) {
-			console.log("Register email request error");
+			console.log("Email change request error:", error);
+			showCustomErrors([{ message: "Email change request failed" }]);
 		} finally {
 			setTimeout(() => {
 				setLoading(false);
@@ -119,20 +176,45 @@ export const useBindEmailRequest = () => {
 	};
 
 	return {
-		postBindEmail,
+		postEmailChange,
 		loading,
 	};
 };
 
-export const useSendEmailCodeRequest = () => {
+export const useEmailChangeConfirmRequest = () => {
 	const [loading, setLoading] = useState(false);
-	const { showCustomErrors } = useAlerts();
-	const postSendEmailCode = async (email: string): Promise<AuthResponse | void> => {
+	const { showCustomErrors, showSuccess } = useAlerts();
+
+	const postEmailChangeConfirm = async (
+		verificationCode: string,
+		oldEmail: string,
+		newEmail: string,
+	): Promise<AuthResponse | void> => {
 		setLoading(true);
 		try {
 			const { initDataRaw } = retrieveLaunchParams();
-			const url = `${process.env.NEXT_PUBLIC_AUTH_URL}/api/email/sendcode`;
-			const response = await fetch(url, {
+
+			if (!initDataRaw) {
+				showCustomErrors([{ message: "No init data available" }]);
+				return;
+			}
+
+			if (!verificationCode) {
+				showCustomErrors([{ message: "Verification code is required" }]);
+				return;
+			}
+
+			if (!oldEmail) {
+				showCustomErrors([{ message: "Old email is required" }]);
+				return;
+			}
+
+			if (!newEmail) {
+				showCustomErrors([{ message: "New email is required" }]);
+				return;
+			}
+
+			const response = await fetch("/api/email-change-confirm", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -141,12 +223,16 @@ export const useSendEmailCodeRequest = () => {
 				},
 				body: JSON.stringify({
 					initDataRaw: initDataRaw,
-					email,
+					verificationCode,
+					oldEmail,
+					newEmail,
 				}),
 			});
 
 			if (!response.ok) {
-				console.log("Register email request failed");
+				console.log("Email change confirm failed");
+				showCustomErrors([{ message: "Email change confirmation failed" }]);
+				return;
 			}
 
 			const res = (await response.json()) as AuthResponse;
@@ -155,9 +241,14 @@ export const useSendEmailCodeRequest = () => {
 				showCustomErrors([{ message: res.message }]);
 			}
 
+			if (res.code === 0) {
+				showSuccess("Email change confirmed successfully");
+			}
+
 			return res;
 		} catch (error) {
-			console.log("Register email request error");
+			console.log("Email change confirm error:", error);
+			showCustomErrors([{ message: "Email change confirmation failed" }]);
 		} finally {
 			setTimeout(() => {
 				setLoading(false);
@@ -166,7 +257,7 @@ export const useSendEmailCodeRequest = () => {
 	};
 
 	return {
-		postSendEmailCode,
+		postEmailChangeConfirm,
 		loading,
 	};
 };

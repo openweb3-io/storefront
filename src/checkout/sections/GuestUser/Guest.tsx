@@ -4,27 +4,18 @@ import { TextInput } from "@/checkout/components/TextInput";
 import { useGuestUserForm } from "@/checkout/sections/GuestUser/useGuestUserForm";
 import { FormProvider } from "@/checkout/hooks/useForm/FormProvider";
 import { Button } from "@/checkout/components/Button";
-import {
-	useSendEmailCodeRequest,
-	useBindEmailRequest,
-	useAuthRequest,
-} from "@/ui/components/RuntimePlatform/hooks";
-import { useAlerts } from "@/checkout/hooks/useAlerts/useAlerts";
+import { useEmailChangeRequest, useEmailChangeConfirmRequest } from "@/ui/components/RuntimePlatform/hooks";
+import { useUser } from "@/checkout/hooks/useUser";
 
-type GuestProps = {
-	onEmailChange: (email: string) => void;
-	email: string;
-};
-
-export const Guest: React.FC<GuestProps> = ({ onEmailChange, email: initialEmail }) => {
-	const form = useGuestUserForm({ initialEmail });
+export const Guest: React.FC = () => {
+	const { user } = useUser();
+	const oldEmail = user?.email || ""; // Get the current user's email as oldEmail
+	const form = useGuestUserForm({ initialEmail: "" }); // The new email input is initially empty
 	const { handleChange } = form;
-	const { email, code } = form.values;
-	const { postSendEmailCode, loading: sendEmailCodeLoading } = useSendEmailCodeRequest();
-	const { postBindEmail, loading: bindEmailLoading } = useBindEmailRequest();
-	const { postAuth } = useAuthRequest();
+	const { email: newEmail, code } = form.values; // The new email entered by the user
+	const { postEmailChange, loading: sendEmailCodeLoading } = useEmailChangeRequest();
+	const { postEmailChangeConfirm, loading: bindEmailLoading } = useEmailChangeConfirmRequest();
 	const [countdown, setCountdown] = useState(0);
-	const { showSuccess } = useAlerts();
 
 	useEffect(() => {
 		if (countdown > 0) {
@@ -38,26 +29,26 @@ export const Guest: React.FC<GuestProps> = ({ onEmailChange, email: initialEmail
 	const handleSendCode = async () => {
 		try {
 			setCountdown(60);
-			await postSendEmailCode(email);
+			// Send email change request
+			await postEmailChange(oldEmail, newEmail);
 		} catch (error) {
 			setCountdown(0);
-			console.error("Failed to send verification code:", error);
+			console.error("Failed to send email change request:", error);
 		}
 	};
 
 	const handleBindEmail = async () => {
 		try {
-			const res = await postBindEmail(email, code);
+			// Confirm email change
+			const res = await postEmailChangeConfirm(code, oldEmail, newEmail);
 			if (res?.code === 0) {
-				showSuccess("Email bound successfully, Please wait...");
 				setCountdown(0);
-				await postAuth();
 				setTimeout(() => {
 					window.location.reload();
 				}, 3000);
 			}
 		} catch (error) {
-			console.error("Failed to bind email:", error);
+			console.error("Failed to confirm email change:", error);
 		}
 	};
 
@@ -72,12 +63,9 @@ export const Guest: React.FC<GuestProps> = ({ onEmailChange, email: initialEmail
 					<TextInput
 						required
 						name="email"
-						label="Email"
-						placeholder="Enter email"
-						onChange={(event) => {
-							handleChange(event);
-							onEmailChange(event.currentTarget.value);
-						}}
+						label="New Email"
+						placeholder="Enter new email"
+						onChange={handleChange}
 					/>
 					<div className="mt-2 flex items-center justify-center gap-2">
 						<div className="flex-1">
@@ -87,9 +75,7 @@ export const Guest: React.FC<GuestProps> = ({ onEmailChange, email: initialEmail
 								label="Verify code"
 								placeholder="Enter code"
 								className="w-full"
-								onChange={(event) => {
-									handleChange(event);
-								}}
+								onChange={handleChange}
 							/>
 						</div>
 						<Button
@@ -97,14 +83,14 @@ export const Guest: React.FC<GuestProps> = ({ onEmailChange, email: initialEmail
 							label={countdown > 0 ? `${countdown}s` : "Send"}
 							onClick={handleSendCode}
 							variant="secondary"
-							disabled={countdown > 0 || !email || sendEmailCodeLoading}
+							disabled={countdown > 0 || !newEmail || sendEmailCodeLoading}
 						/>
 					</div>
 					<div className="mt-2 flex items-center justify-center gap-2">
 						<Button
-							disabled={!email || !code || bindEmailLoading}
+							disabled={!newEmail || !code || bindEmailLoading}
 							className="mt-4 w-full"
-							label="Bind"
+							label="Confirm"
 							onClick={handleBindEmail}
 						/>
 					</div>

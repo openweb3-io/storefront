@@ -6,8 +6,6 @@ import { TmaLayout } from "./TMA/TmaLayout";
 
 // eslint-disable-next-line import/no-default-export
 export default function RuntimePlatform({ children }: PropsWithChildren) {
-	console.log("new version");
-
 	const [tma, setTMA] = useState<boolean | undefined>(undefined);
 
 	useEffect(() => {
@@ -15,7 +13,7 @@ export default function RuntimePlatform({ children }: PropsWithChildren) {
 		// 因为浏览器 mock 会将 launchParams 设置到 sessionStorage，导致后续 isTMA('simple') 认为在 tg 中
 		// eslint-disable-next-line
 		isTMA().then((val) => {
-			console.log(val, "Telegram runtime");
+			console.log(val, "runtime");
 			setTMA(val);
 		});
 	}, []);

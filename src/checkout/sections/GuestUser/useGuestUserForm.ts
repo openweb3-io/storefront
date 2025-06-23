@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { bool, object, type Schema, string } from "yup";
 import { useUserRegisterMutation } from "@/checkout/graphql";
-import { useCheckout } from "@/checkout/hooks/useCheckout";
+// import { useCheckout } from "@/checkout/hooks/useCheckout";
 import {
 	useCheckoutUpdateStateActions,
 	useCheckoutUpdateStateChange,
@@ -29,7 +29,6 @@ interface GuestUserFormProps {
 }
 
 export const useGuestUserForm = ({ initialEmail }: GuestUserFormProps) => {
-	const { checkout } = useCheckout();
 	const { user } = useUser();
 	const shouldUserRegister = useUserRegisterState();
 	const { setShouldRegisterUser, setSubmitInProgress } = useCheckoutUpdateStateActions();
@@ -51,7 +50,7 @@ export const useGuestUserForm = ({ initialEmail }: GuestUserFormProps) => {
 	}) as Schema<GuestUserFormData>;
 
 	const defaultFormData: GuestUserFormData = {
-		email: initialEmail || checkout.email || "",
+		email: initialEmail || "",
 		password: "",
 		createAccount: false,
 		code: "",

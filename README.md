@@ -145,9 +145,6 @@ NEXT_PUBLIC_STOREFRONT_URL=https://4b86554eee8059fe9598086f48e3feb6.serveo.net
 # Token used for fetching channels（option）
 SALEOR_APP_TOKEN=
 
-# Tg/Dejay auth url
-NEXT_PUBLIC_AUTH_URL=https://a865-103-152-220-14.ngrok-free.app
-
 # Default field provider
 NEXT_PUBLIC_TELEGRAM_MOCK_PROVIDER=telegram
 

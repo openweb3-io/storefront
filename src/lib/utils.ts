@@ -50,7 +50,7 @@ export function getHrefForVariant({
  */
 export function browserToBase64URL(str: string) {
 	if (!str) return "";
-	return btoa(encodeURIComponent(str))?.replace(/\+/g, "-")?.replace(/\//g, "_")?.replace(/=+$/, ""); // 移除填充符
+	return btoa(encodeURIComponent(str))?.replace(/\+/g, "-")?.replace(/\//g, "_")?.replace(/=+$/, ""); // Remove padding
 }
 
 /**
@@ -64,7 +64,7 @@ export function browserFromBase64URL(base64UrlStr: string) {
 	const base64Str = base64UrlStr
 		?.replace(/-/g, "+")
 		?.replace(/_/g, "/")
-		?.padEnd(Math.ceil(base64UrlStr.length / 4) * 4, "="); // 补全填充符
+		?.padEnd(Math.ceil(base64UrlStr.length / 4) * 4, "="); // Pad to complete the padding
 	return decodeURIComponent(atob(base64Str));
 }
 
