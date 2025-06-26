@@ -65,6 +65,8 @@ function Loader({ children }: PropsWithChildren) {
 
 		const pathname = browserFromBase64URL(startParam);
 
+		console.log("pathname", pathname);
+
 		const ogParams = sessionStorage.getItem(ogParamsKeys);
 
 		if (!ogParams) {
