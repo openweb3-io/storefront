@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEventHandler, useState, useMemo } from "react";
+import { type FormEventHandler, useState, useMemo, useEffect } from "react";
 import { openLink, openTelegramLink } from "@telegram-apps/sdk-react";
 import { usePaymentStatus } from "../utils";
 import { useAlerts } from "@/checkout/hooks/useAlerts";
@@ -17,6 +17,7 @@ import { useTransactionInitialize } from "@/checkout/hooks/useTransactionInitial
 import { useCheckoutComplete } from "@/checkout/hooks/useCheckoutComplete";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { useTransactionProcess } from "@/checkout/hooks/useTransactionProcess";
+import { useOrderPolling } from "@/checkout/hooks/useOrderPolling";
 
 export function Openweb3Element() {
 	const [text, setText] = useState("Generate order");
@@ -35,6 +36,13 @@ export function Openweb3Element() {
 
 	const { initializeTransaction, transactionInitializeResult } = useTransactionInitialize();
 	const { processTransaction } = useTransactionProcess();
+
+	// 使用订单轮询hook
+	const { isPolling, stopPolling } = useOrderPolling({
+		enabled: !!transactionId, // transactionId enabled polling
+		checkoutId: checkout.id,
+		transactionId: transactionId || "",
+	});
 
 	console.log("transactionInitializeResult", transactionInitializeResult);
 
@@ -117,6 +125,13 @@ export function Openweb3Element() {
 		}
 	});
 
+	// stop polling when component unmount
+	useEffect(() => {
+		return () => {
+			stopPolling();
+		};
+	}, [stopPolling]);
+
 	const checkDeliveryDisabled = useMemo(() => {
 		return (
 			(!authenticated && !checkout.shippingAddress) ||
@@ -138,6 +153,7 @@ export function Openweb3Element() {
 			>
 				<span className="button-text">{text}</span>
 			</button>
+			{isPolling && <div className="text-sm text-gray-600">正在检查订单状态...</div>}
 		</form>
 	);
 }

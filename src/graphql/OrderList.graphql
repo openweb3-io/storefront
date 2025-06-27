@@ -1,0 +1,69 @@
+query OrderList(
+	$first: Int
+	$after: String
+	$last: Int
+	$before: String
+	$filter: OrderFilterInput
+	$sort: OrderSortingInput
+) {
+	orders(before: $before, after: $after, first: $first, last: $last, filter: $filter, sortBy: $sort) {
+		edges {
+			node {
+				__typename
+				billingAddress {
+					...Address
+					__typename
+				}
+				channel {
+					name
+					id
+					__typename
+				}
+				created
+				id
+				number
+				paymentStatus
+				status
+				total {
+					__typename
+					gross {
+						__typename
+						amount
+						currency
+					}
+				}
+				userEmail
+				chargeStatus
+			}
+			__typename
+		}
+		pageInfo {
+			hasPreviousPage
+			hasNextPage
+			startCursor
+			endCursor
+			__typename
+		}
+		__typename
+	}
+}
+
+fragment Address on Address {
+	city
+	cityArea
+	companyName
+	country {
+		__typename
+		code
+		country
+	}
+	countryArea
+	firstName
+	id
+	lastName
+	phone
+	postalCode
+	streetAddress1
+	streetAddress2
+	__typename
+}
