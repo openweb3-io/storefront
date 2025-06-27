@@ -13,7 +13,7 @@ export default async function OrderPage() {
 	}
 
 	const orders = user.orders?.edges || [];
-	console.log("orders", orders);
+	console.log("orders", JSON.stringify(orders, null, 2));
 	return (
 		<div className="mx-auto max-w-7xl p-8">
 			<h1 className="text-2xl font-bold tracking-tight text-neutral-900">
