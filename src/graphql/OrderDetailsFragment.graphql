@@ -38,4 +38,8 @@ fragment OrderDetails on Order {
 		quantity
 	}
 	paymentStatus
+	metadata {
+		key
+		value
+	}
 }
