@@ -17,6 +17,7 @@ import { useTransactionInitialize } from "@/checkout/hooks/useTransactionInitial
 import { useCheckoutComplete } from "@/checkout/hooks/useCheckoutComplete";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { useTransactionProcess } from "@/checkout/hooks/useTransactionProcess";
+import { useTransactionPolling } from "@/checkout/hooks/useTransactionPolling";
 
 export function Openweb3Element() {
 	const [text, setText] = useState("Generate order");
@@ -35,6 +36,26 @@ export function Openweb3Element() {
 
 	const { initializeTransaction, transactionInitializeResult } = useTransactionInitialize();
 	const { processTransaction } = useTransactionProcess();
+
+	// 使用轮询 hook
+	const { isPolling } = useTransactionPolling({
+		transactionId,
+		onOrderComplete: (orderId: string) => {
+			// 额外的安全检查：确保 orderId 存在且有效
+			if (!orderId || orderId.trim() === "") {
+				console.warn("Invalid orderId received:", orderId);
+				return;
+			}
+
+			// 当检测到订单完成时，跳转到订单页
+			showSuccess("Order completed successfully!");
+			// 使用 window.location 进行导航
+			if (typeof window !== "undefined") {
+				window.location.replace(`/orders?orderId=${orderId}`);
+			}
+		},
+		enabled: !!transactionId,
+	});
 
 	console.log("transactionInitializeResult", transactionInitializeResult);
 
@@ -136,7 +157,7 @@ export function Openweb3Element() {
 				disabled={anyRequestsInProgress || submitLoading || checkDeliveryDisabled}
 				type="submit"
 			>
-				<span className="button-text">{text}</span>
+				<span className="button-text">{isPolling ? "Processing..." : text}</span>
 			</button>
 		</form>
 	);
