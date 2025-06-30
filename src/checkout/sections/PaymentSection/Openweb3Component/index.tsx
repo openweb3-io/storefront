@@ -89,6 +89,7 @@ export function Openweb3Element() {
 				pollingIntervalRef.current = null;
 			}
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [transactionId]);
 
 	// 处理表单提交
