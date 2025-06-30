@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEventHandler, useState, useMemo } from "react";
+import { type FormEventHandler, useState, useMemo, useEffect, useRef } from "react";
 import { openLink, openTelegramLink } from "@telegram-apps/sdk-react";
 import { usePaymentStatus } from "../utils";
 import { useAlerts } from "@/checkout/hooks/useAlerts";
@@ -32,11 +32,57 @@ export function Openweb3Element() {
 	const paymentStatus = usePaymentStatus(checkout);
 	const { onCheckoutComplete, completingCheckout } = useCheckoutComplete();
 	const [transactionId, setTransactionId] = useState<string | null>(null);
+	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
 	const { initializeTransaction, transactionInitializeResult } = useTransactionInitialize();
 	const { processTransaction } = useTransactionProcess();
 
 	console.log("transactionInitializeResult", transactionInitializeResult);
+
+	// 轮询处理交易状态
+	useEffect(() => {
+		if (!transactionId) {
+			return;
+		}
+
+		const pollTransactionStatus = async () => {
+			try {
+				const result = await processTransaction(transactionId);
+				const type = result?.transactionEvent?.type;
+
+				if (type === "CHARGE_SUCCESS") {
+					// 停止轮询
+					if (pollingIntervalRef.current) {
+						clearInterval(pollingIntervalRef.current);
+						pollingIntervalRef.current = null;
+					}
+
+					// 完成结账
+					void onCheckoutComplete();
+					showSuccess("Order completed");
+					setText("Paid");
+				}
+				// 其他状态忽略，继续轮询
+			} catch (error) {
+				console.error("轮询交易状态时出错:", error);
+				// 出错时也继续轮询，不显示错误提示
+			}
+		};
+
+		// 立即执行一次
+		void pollTransactionStatus();
+
+		// 设置3秒轮询间隔
+		pollingIntervalRef.current = setInterval(pollTransactionStatus, 3000);
+
+		// 清理函数
+		return () => {
+			if (pollingIntervalRef.current) {
+				clearInterval(pollingIntervalRef.current);
+				pollingIntervalRef.current = null;
+			}
+		};
+	}, [transactionId, processTransaction, onCheckoutComplete, showSuccess]);
 
 	// 处理表单提交
 	const onSubmit: FormEventHandler<HTMLFormElement> = useEvent(async (e) => {
@@ -44,12 +90,12 @@ export function Openweb3Element() {
 
 		validateAllForms(authenticated);
 
-		// // 等待表单验证完成
+		// 等待表单验证完成
 		if (anyFormsValidating(validationState)) {
 			return;
 		}
 
-		// // 检查表单是否全部验证通过
+		// 检查表单是否全部验证通过
 		if (!areAllFormsValid(validationState)) {
 			return;
 		}
