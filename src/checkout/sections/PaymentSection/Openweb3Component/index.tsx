@@ -47,16 +47,16 @@ export function Openweb3Element() {
 
 		const pollTransactionStatus = async () => {
 			try {
+				// 停止轮询
+				if (pollingIntervalRef.current) {
+					clearTimeout(pollingIntervalRef.current);
+					pollingIntervalRef.current = null;
+				}
+
 				const result = await processTransaction(transactionId);
 				const type = result?.transactionEvent?.type;
 
 				if (type === "CHARGE_SUCCESS") {
-					// 停止轮询
-					if (pollingIntervalRef.current) {
-						clearTimeout(pollingIntervalRef.current);
-						pollingIntervalRef.current = null;
-					}
-
 					// 完成结账
 					void onCheckoutComplete();
 					showSuccess("Order completed");
