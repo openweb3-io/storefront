@@ -53,7 +53,7 @@ export function Openweb3Element() {
 				if (type === "CHARGE_SUCCESS") {
 					// 停止轮询
 					if (pollingIntervalRef.current) {
-						clearInterval(pollingIntervalRef.current);
+						clearTimeout(pollingIntervalRef.current);
 						pollingIntervalRef.current = null;
 					}
 
@@ -61,28 +61,35 @@ export function Openweb3Element() {
 					void onCheckoutComplete();
 					showSuccess("Order completed");
 					setText("Paid");
+				} else {
+					// 其他状态继续轮询，清除上一次定时器并设置新的
+					if (pollingIntervalRef.current) {
+						clearTimeout(pollingIntervalRef.current);
+					}
+
+					pollingIntervalRef.current = setTimeout(pollTransactionStatus, 3000);
 				}
-				// 其他状态忽略，继续轮询
 			} catch (error) {
 				console.error("轮询交易状态时出错:", error);
-				// 出错时也继续轮询，不显示错误提示
+				// 出错时也继续轮询，清除上一次定时器并设置新的
+				if (pollingIntervalRef.current) {
+					clearTimeout(pollingIntervalRef.current);
+				}
+				pollingIntervalRef.current = setTimeout(pollTransactionStatus, 3000);
 			}
 		};
 
 		// 立即执行一次
 		void pollTransactionStatus();
 
-		// 设置3秒轮询间隔
-		pollingIntervalRef.current = setInterval(pollTransactionStatus, 3000);
-
 		// 清理函数
 		return () => {
 			if (pollingIntervalRef.current) {
-				clearInterval(pollingIntervalRef.current);
+				clearTimeout(pollingIntervalRef.current);
 				pollingIntervalRef.current = null;
 			}
 		};
-	}, [transactionId]);
+	}, [transactionId, processTransaction, onCheckoutComplete, showSuccess]);
 
 	// 处理表单提交
 	const onSubmit: FormEventHandler<HTMLFormElement> = useEvent(async (e) => {
