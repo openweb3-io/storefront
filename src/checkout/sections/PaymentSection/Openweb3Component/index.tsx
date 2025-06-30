@@ -82,7 +82,7 @@ export function Openweb3Element() {
 				pollingIntervalRef.current = null;
 			}
 		};
-	}, [transactionId, processTransaction, onCheckoutComplete, showSuccess]);
+	}, [transactionId]);
 
 	// 处理表单提交
 	const onSubmit: FormEventHandler<HTMLFormElement> = useEvent(async (e) => {
