@@ -31,11 +31,11 @@ export const Checkout = () => {
 					<EmptyCartPage />
 				) : (
 					<div className="grid min-h-screen grid-cols-1 gap-x-16 lg:grid-cols-2">
-						<Suspense fallback={<CheckoutFormSkeleton />}>
-							<CheckoutForm />
-						</Suspense>
 						<Suspense fallback={<SummarySkeleton />}>
 							<Summary {...checkout} />
+						</Suspense>
+						<Suspense fallback={<CheckoutFormSkeleton />}>
+							<CheckoutForm />
 						</Suspense>
 					</div>
 				)}
