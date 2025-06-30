@@ -33,7 +33,7 @@ export const useTransactionInitialize = () => {
 					data: {
 						metadata: {
 							userId,
-							platform: window.navigator.userAgent.includes("MiniAppX") ? "DEJAY" : "TELEGRAM",
+							platform: window.navigator.userAgent.includes("MiniAppX") ? "DEJOY" : "TELEGRAM",
 							domain: process.env.NEXT_PUBLIC_SALEOR_API_URL,
 						},
 					},
