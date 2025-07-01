@@ -25,6 +25,26 @@ export const useTransactionInitialize = () => {
 			console.error(err);
 		}
 
+		// 生成产品描述字符串
+		const generateProductsDescription = () => {
+			try {
+				if (!checkout?.lines || checkout.lines.length === 0) {
+					return "";
+				}
+
+				const productDescriptions = checkout.lines.map((line) => {
+					const variantName = line.variant.product?.name;
+					return `${variantName} X ${line.quantity}`;
+				});
+
+				return productDescriptions.join(" and ");
+			} catch (error) {
+				return "";
+			}
+		};
+
+		const productsDescription = generateProductsDescription();
+
 		try {
 			const result = await transactionInitialize({
 				checkoutId: checkout.id,
@@ -35,6 +55,7 @@ export const useTransactionInitialize = () => {
 							userId,
 							platform: window.navigator.userAgent.includes("MiniAppX") ? "DEJOY" : "TELEGRAM",
 							domain: process.env.NEXT_PUBLIC_SALEOR_API_URL,
+							products: productsDescription,
 						},
 					},
 				},
@@ -51,7 +72,13 @@ export const useTransactionInitialize = () => {
 			showCustomErrors([{ message: commonErrorMessages.somethingWentWrong }]);
 			return null;
 		}
-	}, [checkout.id, commonErrorMessages.somethingWentWrong, showCustomErrors, transactionInitialize]);
+	}, [
+		checkout.id,
+		checkout?.lines,
+		commonErrorMessages.somethingWentWrong,
+		showCustomErrors,
+		transactionInitialize,
+	]);
 
 	return {
 		initializeTransaction,

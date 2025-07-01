@@ -1,8 +1,7 @@
 import { Suspense, useState } from "react";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
-import { ContactUser } from "@/checkout/sections/Contact/ContactUser";
+import { ContactUser, ContactSkeleton, Contact } from "@/checkout/sections/Contact";
 import { DeliveryMethods } from "@/checkout/sections/DeliveryMethods";
-import { ContactSkeleton } from "@/checkout/sections/Contact/ContactSkeleton";
 import { DeliveryMethodsSkeleton } from "@/checkout/sections/DeliveryMethods/DeliveryMethodsSkeleton";
 import { AddressSectionSkeleton } from "@/checkout/components/AddressSectionSkeleton";
 import { getQueryParams } from "@/checkout/lib/utils/url";
@@ -12,29 +11,40 @@ import { UserShippingAddressSection } from "@/checkout/sections/UserShippingAddr
 import { UserBillingAddressSection } from "@/checkout/sections/UserBillingAddressSection";
 import { PaymentSection, PaymentSectionSkeleton } from "@/checkout/sections/PaymentSection";
 import { useUser } from "@/checkout/hooks/useUser";
+import { GuestBillingAddressSection } from "@/checkout/sections/GuestBillingAddressSection";
+import { GuestShippingAddressSection } from "@/checkout/sections/GuestShippingAddressSection";
 
 export const CheckoutForm = () => {
 	const { user } = useUser();
 	const { checkout } = useCheckout();
 	const { passwordResetToken } = getQueryParams();
-	const [showOnlyContact] = useState(!!passwordResetToken);
+
+	const [showOnlyContact, setShowOnlyContact] = useState(!!passwordResetToken);
+
+	console.log("user: ", user);
 
 	return (
 		<div className="flex flex-col items-end">
 			<div className="flex w-full flex-col rounded">
 				<div>
-					<Suspense fallback={<ContactSkeleton />}>
-						<ContactUser />
-					</Suspense>
+					{user ? (
+						<Suspense fallback={<ContactSkeleton />}>
+							<ContactUser />
+						</Suspense>
+					) : (
+						<Suspense fallback={<ContactSkeleton />}>
+							<Contact setShowOnlyContact={setShowOnlyContact} />
+						</Suspense>
+					)}
 				</div>
 				<>
-					{checkout?.isShippingRequired && user && (
+					{checkout?.isShippingRequired && (
 						<>
 							<Suspense fallback={<AddressSectionSkeleton />}>
 								<CollapseSection collapse={showOnlyContact}>
 									<Divider />
 									<div className="py-4" data-testid="shippingAddressSection">
-										<UserShippingAddressSection />
+										{user ? <UserShippingAddressSection /> : <GuestShippingAddressSection />}
 									</div>
 									<UserBillingAddressSection />
 								</CollapseSection>
@@ -45,6 +55,7 @@ export const CheckoutForm = () => {
 							<Suspense fallback={<PaymentSectionSkeleton />}>
 								<CollapseSection collapse={showOnlyContact}>
 									<PaymentSection />
+									{user ? <UserBillingAddressSection /> : <GuestBillingAddressSection />}
 								</CollapseSection>
 							</Suspense>
 						</>
