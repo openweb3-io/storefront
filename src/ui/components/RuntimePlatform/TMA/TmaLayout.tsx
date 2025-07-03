@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 import {
 	$debug,
 	backButton,
@@ -36,15 +36,9 @@ function Loader({ children }: PropsWithChildren) {
 	const ogParamsKeys = "og:params";
 
 	useNativeBackButton(() => {
-		const ogParams = sessionStorage.getItem(ogParamsKeys);
-
-		const defaultPathname = "/default-channel/products";
-
-		if (ogParams) {
-			sessionStorage.removeItem(ogParamsKeys);
-			setTimeout(() => {
-				redirect(defaultPathname);
-			}, 0);
+		if (pathname === "/checkout") {
+			router.push("/default-channel/cart");
+			return;
 		}
 
 		if (history.length > 1) {
@@ -56,35 +50,28 @@ function Loader({ children }: PropsWithChildren) {
 
 	useClientOnce(() => {
 		void postAuth();
+
 		const startParam = retrieveLaunchParams()?.startParam;
 		console.log("startParam", startParam);
 
-		sessionStorage.setItem(ogParamsKeys, JSON.stringify(startParam));
-
 		if (!startParam) return;
 
-		const pathname = browserFromBase64URL(startParam);
+		const storageStartParam = sessionStorage.getItem(ogParamsKeys);
 
-		console.log("pathname", pathname);
+		const finalPathname = browserFromBase64URL(startParam).split?.("#")?.[0];
 
-		const ogParams = sessionStorage.getItem(ogParamsKeys);
+		console.log("finalPathname", finalPathname);
 
-		if (!ogParams) {
-			sessionStorage.setItem(ogParamsKeys, pathname);
-			redirect(pathname);
+		if (!storageStartParam) {
+			sessionStorage.setItem(ogParamsKeys, startParam);
+			redirect(finalPathname);
 		}
 
-		if (ogParams !== pathname) {
-			sessionStorage.setItem(ogParamsKeys, pathname);
-			redirect(pathname);
+		if (storageStartParam !== startParam) {
+			sessionStorage.setItem(ogParamsKeys, startParam);
+			redirect(finalPathname);
 		}
 	});
-
-	useEffect(() => {
-		return () => {
-			sessionStorage.removeItem(ogParamsKeys);
-		};
-	}, []);
 
 	if (loading) {
 		return <></>;
