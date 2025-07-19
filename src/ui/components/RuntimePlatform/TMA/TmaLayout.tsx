@@ -83,8 +83,8 @@ function Loader({ children }: PropsWithChildren) {
 export function TmaLayout({ children }: PropsWithChildren) {
 	useClientOnce(() => {
 		if (window !== undefined) {
-			const searchContent = window.location?.search;
-			const searchParams = new URLSearchParams(searchContent);
+			const hashContent = window.location?.hash?.split?.("#")?.[1];
+			const searchParams = new URLSearchParams(hashContent);
 			const spaceId = searchParams.get("spaceId");
 			const appId = searchParams.get("appId");
 
