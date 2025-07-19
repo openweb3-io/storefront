@@ -82,6 +82,21 @@ function Loader({ children }: PropsWithChildren) {
 
 export function TmaLayout({ children }: PropsWithChildren) {
 	useClientOnce(() => {
+		if (window !== undefined) {
+			const hashContent = window.location?.hash?.split?.("#")?.[1];
+			const searchParams = new URLSearchParams(hashContent);
+			const spaceId = searchParams.get("spaceId");
+			const appId = searchParams.get("appId");
+
+			if (spaceId) {
+				localStorage.setItem("spaceId", spaceId);
+			}
+
+			if (appId) {
+				localStorage.setItem("appId", appId);
+			}
+		}
+		//
 		const launchParams = retrieveLaunchParams();
 		console.log("launchParams", launchParams);
 		initSDK(false);

@@ -56,6 +56,8 @@ export const useTransactionInitialize = () => {
 							platform: window.navigator.userAgent.includes("MiniAppX") ? "DEJOY" : "TELEGRAM",
 							domain: process.env.NEXT_PUBLIC_SALEOR_API_URL,
 							products: productsDescription,
+							spaceId: localStorage.getItem("spaceId") || "",
+							appId: localStorage.getItem("appId") || "",
 						},
 					},
 				},
