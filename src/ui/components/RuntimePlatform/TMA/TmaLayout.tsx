@@ -83,8 +83,8 @@ function Loader({ children }: PropsWithChildren) {
 export function TmaLayout({ children }: PropsWithChildren) {
 	useClientOnce(() => {
 		if (window !== undefined) {
-			const hashContent = window.location?.hash?.split?.("#")?.[1];
-			const searchParams = new URLSearchParams(hashContent);
+			const searchContent = window.location?.search;
+			const searchParams = new URLSearchParams(searchContent);
 			const spaceId = searchParams.get("spaceId");
 			const appId = searchParams.get("appId");
 
@@ -96,7 +96,6 @@ export function TmaLayout({ children }: PropsWithChildren) {
 				localStorage.setItem("appId", appId);
 			}
 		}
-		//
 		const launchParams = retrieveLaunchParams();
 		console.log("launchParams", launchParams);
 		initSDK(false);
