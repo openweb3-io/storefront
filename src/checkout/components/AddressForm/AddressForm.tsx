@@ -109,9 +109,7 @@ export const AddressForm: FC<PropsWithChildren<AddressFormProps>> = ({
 						);
 					}
 
-					return (
-						<TextInput required={isRequired} {...commonProps} key={field} type={typeTags[field] || "text"} />
-					);
+					return <TextInput required={true} {...commonProps} key={field} type={typeTags[field] || "text"} />;
 				})}
 				{children}
 			</div>
