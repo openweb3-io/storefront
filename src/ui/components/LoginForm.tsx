@@ -12,7 +12,9 @@ export async function LoginForm() {
 					const password = formData.get("password")?.toString();
 
 					if (!email || !password) {
-						throw new Error("Email and password are required");
+						console.warn("Email and password are required", email, password);
+						return;
+						// throw new Error("Email and password are required");
 					}
 
 					const { data } = await (

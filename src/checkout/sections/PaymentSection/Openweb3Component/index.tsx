@@ -110,6 +110,7 @@ export function Openweb3Element() {
 
 		// 检查支付状态
 		if (!completingCheckout && paymentStatus === "paidInFull") {
+			void onCheckoutComplete();
 			showSuccess("Order completed");
 			setText("Order completed");
 			return;
@@ -159,8 +160,8 @@ export function Openweb3Element() {
 			}
 
 			if (type === "CHARGE_SUCCESS") {
-				showSuccess("Order completed");
 				void onCheckoutComplete();
+				showSuccess("Order completed");
 				setText("Paid");
 			}
 		} catch (error) {
