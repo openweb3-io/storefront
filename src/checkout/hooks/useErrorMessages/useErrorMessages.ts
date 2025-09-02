@@ -26,8 +26,8 @@ export const useErrorMessages = <TKey extends string = ErrorCode>(customMessages
 		(errorCode: string) => {
 			const formattedMessage = messagesToUse[errorCode as keyof typeof messagesToUse];
 			if (!formattedMessage) {
-				console.warn(`Missing trnalsation: ${errorCode}`);
-				return "";
+				console.warn(`Missing translation: ${errorCode}`);
+				return "Sorry, something went wrong. Please try again in a moment.";
 			}
 			return formattedMessage;
 		},

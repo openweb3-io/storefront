@@ -6,6 +6,7 @@ export interface AlertErrorData {
 	scope: CheckoutScope;
 	code: ErrorCode;
 	field: string;
+	message?: string;
 }
 
 export type CustomError =

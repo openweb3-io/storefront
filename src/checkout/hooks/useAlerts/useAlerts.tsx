@@ -43,11 +43,15 @@ function useAlerts(globalScope?: any): any {
 		try {
 			const fullMessage = apiErrorMessages[messageKey];
 
-			return fullMessage;
+			if (fullMessage) {
+				return fullMessage;
+			}
 		} catch (e) {
 			console.warn(`Missing translation: ${messageKey}`);
-			return apiErrorMessages.somethingWentWrong;
 		}
+
+		// Fallback to generic error message if specific message not found
+		return apiErrorMessages.somethingWentWrong;
 	}, []);
 
 	const getParsedAlert = useCallback(
@@ -71,6 +75,13 @@ function useAlerts(globalScope?: any): any {
 
 	const showDefaultAlert = useCallback(
 		(alertErrorData: AlertErrorData, { type }: { type: AlertType } = { type: "error" }) => {
+			// If the error already has a message, use it directly
+			if (alertErrorData.message) {
+				showAlert({ message: alertErrorData.message, type });
+				return;
+			}
+
+			// Otherwise, try to generate a message from the error data
 			const parsedAlert = getParsedAlert(alertErrorData, type);
 			showAlert(parsedAlert);
 		},
