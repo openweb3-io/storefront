@@ -11,7 +11,7 @@ export async function generateMetadata(props: {
 	const params = await props.params;
 
 	return {
-		title: "ACME Storefront, powered by Saleor",
+		title: "Demo Storefront, powered by Saleor",
 		description:
 			"Storefront Next.js Example for building performant e-commerce experiences with Saleor - the composable, headless commerce platform for global brands.",
 		other: {
