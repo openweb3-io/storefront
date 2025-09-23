@@ -27,7 +27,17 @@ export const useCheckoutComplete = () => {
 							},
 							replaceWholeQuery: true,
 						});
-						window.location.href = newUrl;
+
+						window.history.replaceState({}, "", newUrl);
+
+						if (typeof window !== "undefined" && window.dispatchEvent) {
+							window.dispatchEvent(new PopStateEvent("popstate"));
+						}
+						setTimeout(() => {
+							if (window.location.pathname !== newUrl.split("?")[0]) {
+								window.location.href = newUrl;
+							}
+						}, 100);
 					}
 				},
 			}),

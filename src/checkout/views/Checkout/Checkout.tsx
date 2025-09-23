@@ -18,7 +18,11 @@ export const Checkout = () => {
 
 	const isEmptyCart = checkout && !checkout.lines.length;
 
+	const urlParams = new URLSearchParams(window.location.search);
+	const hasOrderId = urlParams.has("order");
+
 	console.log("checkout", checkout);
+	console.log("hasOrderId", hasOrderId);
 
 	return isCheckoutInvalid ? (
 		<PageNotFound />
@@ -27,7 +31,7 @@ export const Checkout = () => {
 	) : (
 		<ErrorBoundary FallbackComponent={PageNotFound}>
 			<div className="page">
-				{isEmptyCart ? (
+				{isEmptyCart && !hasOrderId ? (
 					<EmptyCartPage />
 				) : (
 					<div className="grid min-h-screen grid-cols-1 gap-x-16 lg:grid-cols-2">

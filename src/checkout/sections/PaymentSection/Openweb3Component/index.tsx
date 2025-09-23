@@ -57,7 +57,15 @@ export function Openweb3Element() {
 				const type = result?.transactionEvent?.type;
 
 				if (type === "CHARGE_SUCCESS") {
-					// 完成结账
+					console.log("Payment successful, completing checkout...");
+
+					if (pollingIntervalRef.current) {
+						clearTimeout(pollingIntervalRef.current);
+						pollingIntervalRef.current = null;
+					}
+
+					setTransactionId(null);
+
 					void onCheckoutComplete();
 					showSuccess("Order completed");
 					setText("Paid");
