@@ -31,7 +31,7 @@ export function useTelegramMock(): void {
 			launchParams: {
 				tgWebAppData: initDataRaw,
 				tgWebAppVersion: "8.0",
-				tgWebAppPlatform: "macos",
+				tgWebAppPlatform: "desktop",
 				tgWebAppThemeParams: {
 					accentTextColor: "#6ab2f2",
 					bgColor: "#17212b",
@@ -46,7 +46,8 @@ export function useTelegramMock(): void {
 					sectionHeaderTextColor: "#6ab3f3",
 					subtitleTextColor: "#708499",
 					textColor: "#f5f5f5",
-			}},
+				},
+			},
 		});
 		sessionStorage.setItem(MOCK_KEY, "1");
 

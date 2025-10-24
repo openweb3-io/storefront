@@ -22,6 +22,12 @@ const initSDK = async () => {
 	backButton.mount();
 	await themeParams.mount();
 	initData.restore();
+	await viewport.mount();
+	// bind viewport CSS
+	if (viewport.bindCssVars.isAvailable()) {
+		viewport.bindCssVars();
+		console.log("📐 Viewport CSS variables bound");
+	}
 };
 
 function Loader({ children }: PropsWithChildren) {
@@ -51,19 +57,6 @@ function Loader({ children }: PropsWithChildren) {
 
 		const startParam = initData.startParam();
 		console.log("startParam", startParam);
-
-		viewport
-			.mount()
-			.then(() => {
-				// bind viewport CSS
-				if (viewport.bindCssVars.isAvailable()) {
-					viewport.bindCssVars();
-					console.log("📐 Viewport CSS variables bound");
-				}
-			})
-			.catch((error) => {
-				console.error("❌ Error mounting Viewport", error);
-			});
 
 		if (!startParam) return;
 
