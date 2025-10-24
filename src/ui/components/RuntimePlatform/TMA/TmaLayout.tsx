@@ -8,7 +8,7 @@ import {
 	miniApp,
 	themeParams,
 	retrieveLaunchParams,
-	viewport
+	viewport,
 } from "@telegram-apps/sdk-react";
 import { redirect, usePathname, useRouter } from "next/navigation";
 import { useAuthRequest } from "../hooks";
@@ -18,11 +18,11 @@ import { useNativeBackButton } from "@/hooks/useNativeBackButton";
 import { browserFromBase64URL } from "@/lib/utils";
 const initSDK = async () => {
 	init();
-	miniApp.mount();
+	await miniApp.mount();
 	backButton.mount();
-	themeParams.mount();
+	await themeParams.mount();
 	initData.restore();
-	viewport.mount();
+	await viewport.mount();
 };
 
 function Loader({ children }: PropsWithChildren) {
@@ -53,15 +53,14 @@ function Loader({ children }: PropsWithChildren) {
 		const startParam = retrieveLaunchParams()?.startParam;
 		console.log("startParam", startParam);
 
-		viewport.mount();
 		// load Viewport
 		if (viewport.mount.isAvailable()) {
-			console.log('✅ Viewport mounted');
-			
+			console.log("✅ Viewport mounted");
+
 			// bind viewport CSS
 			if (viewport.bindCssVars.isAvailable()) {
-			  viewport.bindCssVars();
-			  console.log('📐 Viewport CSS variables bound');
+				viewport.bindCssVars();
+				console.log("📐 Viewport CSS variables bound");
 			}
 		}
 
@@ -109,7 +108,9 @@ export function TmaLayout({ children }: PropsWithChildren) {
 		}
 		const launchParams = retrieveLaunchParams();
 		console.log("launchParams", launchParams);
-		initSDK();
+		initSDK().catch((error) => {
+			console.error("❌ Error initializing SDK", error);
+		});
 	});
 
 	useTelegramMock();

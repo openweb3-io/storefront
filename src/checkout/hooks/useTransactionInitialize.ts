@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 // import { isTMA } from "@telegram-apps/sdk";
-import { isTMA, retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { openweb3GatewayId } from "../sections/PaymentSection/Openweb3Component/types";
 import { useTransactionInitializeMutation } from "@/checkout/graphql";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
@@ -18,9 +18,8 @@ export const useTransactionInitialize = () => {
 		let userId = "";
 
 		try {
-			const isTelegram = await isTMA();
 			const launchParams = retrieveLaunchParams();
-			userId = isTelegram ? `${launchParams?.tgWebAppData?.user?.id}` : "";
+			userId = `${launchParams?.tgWebAppData?.user?.id}` || "";
 		} catch (err) {
 			console.error(err);
 		}

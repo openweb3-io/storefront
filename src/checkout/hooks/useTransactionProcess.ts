@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { isTMA, retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { useTransactionProcessMutation } from "@/checkout/graphql";
 import { useAlerts } from "@/checkout/hooks/useAlerts";
 import { useErrorMessages } from "@/checkout/hooks/useErrorMessages";
@@ -13,9 +13,8 @@ export const useTransactionProcess = () => {
 	const processTransaction = useCallback(
 		async (transactionId: string) => {
 			try {
-				const isTelegram = await isTMA();
 				const launchParams = retrieveLaunchParams();
-				const userId = isTelegram ? `${launchParams?.tgWebAppData?.user?.id}` : "";
+				const userId = `${launchParams?.tgWebAppData?.user?.id}` || "";
 
 				const result = await transactionProcess({
 					id: transactionId,
