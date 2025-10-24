@@ -22,12 +22,12 @@ const initSDK = async (debug: boolean) => {
     $debug.set(debug);
   }
 
-  init();
-  await miniApp.mount();
-  await backButton.mount();
-  await themeParams.mount();
-  await initData.restore();
-  await viewport.mount();
+	init();
+	miniApp.mount();
+	backButton.mount();
+	themeParams.mount();
+	initData.restore();
+	viewport.mount();
 };
 
 function Loader({ children }: PropsWithChildren) {
@@ -58,19 +58,18 @@ function Loader({ children }: PropsWithChildren) {
 		const startParam = retrieveLaunchParams()?.startParam;
 		console.log("startParam", startParam);
 
-		if (!startParam) return;
-
-		// 挂载 Viewport
+		// load Viewport
 		if (viewport.mount.isAvailable()) {
-			console.log('✅ Viewport 已挂载');
+			console.log('✅ Viewport mounted');
 			
-			// 绑定 viewport CSS 变量
+			// bind viewport CSS
 			if (viewport.bindCssVars.isAvailable()) {
 			  viewport.bindCssVars();
-			  console.log('📐 Viewport CSS 变量已绑定');
-			  // 此时 --tg-viewport-content-safe-area-inset-top 等变量已创建
+			  console.log('📐 Viewport CSS variables bound');
 			}
 		}
+
+		if (!startParam) return;
 
 		const storageStartParam = sessionStorage.getItem(ogParamsKeys);
 
