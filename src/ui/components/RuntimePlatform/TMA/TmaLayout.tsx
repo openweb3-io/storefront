@@ -9,6 +9,7 @@ import {
 	miniApp,
 	themeParams,
 	retrieveLaunchParams,
+	viewport
 } from "@telegram-apps/sdk-react";
 import { redirect, usePathname, useRouter } from "next/navigation";
 import { useAuthRequest } from "../hooks";
@@ -16,14 +17,17 @@ import { useClientOnce } from "@/hooks/use-client-once";
 import { useTelegramMock } from "@/checkout/hooks/useTelegramMock";
 import { useNativeBackButton } from "@/hooks/useNativeBackButton";
 import { browserFromBase64URL } from "@/lib/utils";
-const initSDK = (debug: boolean) => {
-	$debug.set(debug);
+const initSDK = async (debug: boolean) => {
+  if (typeof $debug.set === 'function') {
+    $debug.set(debug);
+  }
 
-	init();
-	miniApp.mount();
-	backButton.mount();
-	themeParams.mount();
-	initData.restore();
+  init();
+  await miniApp.mount();
+  await backButton.mount();
+  await themeParams.mount();
+  await initData.restore();
+  await viewport.mount();
 };
 
 function Loader({ children }: PropsWithChildren) {
@@ -55,6 +59,18 @@ function Loader({ children }: PropsWithChildren) {
 		console.log("startParam", startParam);
 
 		if (!startParam) return;
+
+		// 挂载 Viewport
+		if (viewport.mount.isAvailable()) {
+			console.log('✅ Viewport 已挂载');
+			
+			// 绑定 viewport CSS 变量
+			if (viewport.bindCssVars.isAvailable()) {
+			  viewport.bindCssVars();
+			  console.log('📐 Viewport CSS 变量已绑定');
+			  // 此时 --tg-viewport-content-safe-area-inset-top 等变量已创建
+			}
+		}
 
 		const storageStartParam = sessionStorage.getItem(ogParamsKeys);
 

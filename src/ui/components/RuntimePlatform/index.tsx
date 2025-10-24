@@ -12,7 +12,7 @@ export default function RuntimePlatform({ children }: PropsWithChildren) {
 		// XXX 这里要严格检查，不能 isTMA('simple')
 		// 因为浏览器 mock 会将 launchParams 设置到 sessionStorage，导致后续 isTMA('simple') 认为在 tg 中
 		// eslint-disable-next-line
-		isTMA().then((val) => {
+		Promise.resolve(isTMA()).then((val) => {
 			console.log(val, "runtime");
 			setTMA(val);
 		});
