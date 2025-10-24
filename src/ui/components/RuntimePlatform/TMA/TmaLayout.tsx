@@ -53,15 +53,10 @@ function Loader({ children }: PropsWithChildren) {
 		const startParam = retrieveLaunchParams()?.startParam;
 		console.log("startParam", startParam);
 
-		// load Viewport
-		if (viewport.mount.isAvailable()) {
-			console.log("✅ Viewport mounted");
-
-			// bind viewport CSS
-			if (viewport.bindCssVars.isAvailable()) {
-				viewport.bindCssVars();
-				console.log("📐 Viewport CSS variables bound");
-			}
+		// bind viewport CSS
+		if (viewport.bindCssVars.isAvailable()) {
+			viewport.bindCssVars();
+			console.log("📐 Viewport CSS variables bound");
 		}
 
 		if (!startParam) return;
