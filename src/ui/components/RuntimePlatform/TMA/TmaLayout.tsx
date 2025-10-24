@@ -49,7 +49,7 @@ function Loader({ children }: PropsWithChildren) {
 	useClientOnce(() => {
 		void postAuth();
 
-		const startParam = retrieveLaunchParams()?.startParam;
+		const startParam = initData.startParam();
 		console.log("startParam", startParam);
 
 		viewport
@@ -69,17 +69,17 @@ function Loader({ children }: PropsWithChildren) {
 
 		const storageStartParam = sessionStorage.getItem(ogParamsKeys);
 
-		const finalPathname = browserFromBase64URL(startParam as string).split?.("#")?.[0];
+		const finalPathname = browserFromBase64URL(startParam).split?.("#")?.[0];
 
 		console.log("finalPathname", finalPathname);
 
 		if (!storageStartParam) {
-			sessionStorage.setItem(ogParamsKeys, startParam as string);
+			sessionStorage.setItem(ogParamsKeys, startParam);
 			redirect(finalPathname);
 		}
 
 		if (storageStartParam !== startParam) {
-			sessionStorage.setItem(ogParamsKeys, startParam as string);
+			sessionStorage.setItem(ogParamsKeys, startParam);
 			redirect(finalPathname);
 		}
 	});
