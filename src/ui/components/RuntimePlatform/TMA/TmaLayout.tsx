@@ -22,9 +22,11 @@ const initSDK = async () => {
 	backButton.mount();
 	await themeParams.mount();
 	initData.restore();
-	await viewport.mount();
+	if (!viewport.isMounted()) {
+		await viewport.mount();
+	}
 	// bind viewport CSS
-	if (viewport.bindCssVars.isAvailable()) {
+	if (viewport.bindCssVars.isAvailable() && !viewport.isCssVarsBound()) {
 		viewport.bindCssVars();
 		console.log("📐 Viewport CSS variables bound");
 	}

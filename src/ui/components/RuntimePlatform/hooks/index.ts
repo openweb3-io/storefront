@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { initData } from "@telegram-apps/sdk-react";
 import { openweb3GatewayId } from "@/checkout/sections/PaymentSection/Openweb3Component/types";
 import { useAlerts } from "@/checkout/hooks/useAlerts/useAlerts";
 
@@ -33,7 +33,7 @@ export const useAuthRequest = () => {
 	const postAuth = async (): Promise<AuthResponse | void> => {
 		setLoading(true);
 		try {
-			const { initDataRaw } = retrieveLaunchParams();
+			const initDataRaw = initData.raw();
 
 			if (!initDataRaw) {
 				showCustomErrors([{ message: "No init data available" }]);
@@ -117,7 +117,7 @@ export const useEmailChangeRequest = () => {
 	const postEmailChange = async (oldEmail: string, newEmail: string): Promise<AuthResponse | void> => {
 		setLoading(true);
 		try {
-			const { initDataRaw } = retrieveLaunchParams();
+			const initDataRaw = initData.raw();
 
 			if (!initDataRaw) {
 				showCustomErrors([{ message: "No init data available" }]);
@@ -192,7 +192,7 @@ export const useEmailChangeConfirmRequest = () => {
 	): Promise<AuthResponse | void> => {
 		setLoading(true);
 		try {
-			const { initDataRaw } = retrieveLaunchParams();
+			const initDataRaw = initData.raw();
 
 			if (!initDataRaw) {
 				showCustomErrors([{ message: "No init data available" }]);
