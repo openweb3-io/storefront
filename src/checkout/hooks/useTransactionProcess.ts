@@ -15,7 +15,7 @@ export const useTransactionProcess = () => {
 			try {
 				const isTelegram = await isTMA();
 				const launchParams = retrieveLaunchParams();
-				const userId = isTelegram ? `${launchParams.initData?.user?.id}` : "";
+				const userId = isTelegram ? `${launchParams?.tgWebAppData?.user?.id}` : "";
 
 				const result = await transactionProcess({
 					id: transactionId,

@@ -2,7 +2,6 @@
 
 import { type PropsWithChildren } from "react";
 import {
-	$debug,
 	backButton,
 	init,
 	initData,
@@ -17,11 +16,7 @@ import { useClientOnce } from "@/hooks/use-client-once";
 import { useTelegramMock } from "@/checkout/hooks/useTelegramMock";
 import { useNativeBackButton } from "@/hooks/useNativeBackButton";
 import { browserFromBase64URL } from "@/lib/utils";
-const initSDK = async (debug: boolean) => {
-  if (typeof $debug.set === 'function') {
-    $debug.set(debug);
-  }
-
+const initSDK = async () => {
 	init();
 	miniApp.mount();
 	backButton.mount();
@@ -58,6 +53,7 @@ function Loader({ children }: PropsWithChildren) {
 		const startParam = retrieveLaunchParams()?.startParam;
 		console.log("startParam", startParam);
 
+		viewport.mount();
 		// load Viewport
 		if (viewport.mount.isAvailable()) {
 			console.log('✅ Viewport mounted');
@@ -73,17 +69,17 @@ function Loader({ children }: PropsWithChildren) {
 
 		const storageStartParam = sessionStorage.getItem(ogParamsKeys);
 
-		const finalPathname = browserFromBase64URL(startParam).split?.("#")?.[0];
+		const finalPathname = browserFromBase64URL(startParam as string).split?.("#")?.[0];
 
 		console.log("finalPathname", finalPathname);
 
 		if (!storageStartParam) {
-			sessionStorage.setItem(ogParamsKeys, startParam);
+			sessionStorage.setItem(ogParamsKeys, startParam as string);
 			redirect(finalPathname);
 		}
 
 		if (storageStartParam !== startParam) {
-			sessionStorage.setItem(ogParamsKeys, startParam);
+			sessionStorage.setItem(ogParamsKeys, startParam as string);
 			redirect(finalPathname);
 		}
 	});
@@ -113,7 +109,7 @@ export function TmaLayout({ children }: PropsWithChildren) {
 		}
 		const launchParams = retrieveLaunchParams();
 		console.log("launchParams", launchParams);
-		initSDK(false);
+		initSDK();
 	});
 
 	useTelegramMock();

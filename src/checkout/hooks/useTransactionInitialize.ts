@@ -20,7 +20,7 @@ export const useTransactionInitialize = () => {
 		try {
 			const isTelegram = await isTMA();
 			const launchParams = retrieveLaunchParams();
-			userId = isTelegram ? `${launchParams.initData?.user?.id}` : "";
+			userId = isTelegram ? `${launchParams?.tgWebAppData?.user?.id}` : "";
 		} catch (err) {
 			console.error(err);
 		}

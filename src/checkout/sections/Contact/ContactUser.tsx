@@ -24,7 +24,7 @@ const isEmail = (email: string) => {
 	// Get the current telegram userid
 	try {
 		const launchParams = retrieveLaunchParams();
-		const currentUserId = launchParams.initData?.user?.id;
+		const currentUserId = launchParams?.tgWebAppData?.user?.id;
 		console.log("Current telegram userid:", currentUserId);
 
 		// If the current userid cannot be obtained, only check the email format
