@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEventHandler, useState, useMemo, useEffect, useRef } from "react";
-import { openLink, openTelegramLink } from "@telegram-apps/sdk-react";
+import { openLink, openTelegramLink } from "@telegram-apps/sdk";
 import { usePaymentStatus } from "../utils";
 import { useAlerts } from "@/checkout/hooks/useAlerts";
 import {

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { retrieveLaunchParams } from "@telegram-apps/sdk";
 import { useTransactionProcessMutation } from "@/checkout/graphql";
 import { useAlerts } from "@/checkout/hooks/useAlerts";
 import { useErrorMessages } from "@/checkout/hooks/useErrorMessages";

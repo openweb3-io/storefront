@@ -1,4 +1,4 @@
-import { isTMA, mockTelegramEnv } from "@telegram-apps/sdk-react";
+import { isTMA, mockTelegramEnv } from "@telegram-apps/sdk";
 import { useClientOnce } from "@/hooks/use-client-once";
 
 /**

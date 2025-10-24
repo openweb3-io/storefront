@@ -1,5 +1,5 @@
 "use client";
-import { isTMA } from "@telegram-apps/sdk-react";
+import { isTMA } from "@telegram-apps/sdk";
 import React, { type PropsWithChildren, useEffect, useState } from "react";
 import { BrowserLayout } from "./Browser/BrowserLayout";
 import { TmaLayout } from "./TMA/TmaLayout";

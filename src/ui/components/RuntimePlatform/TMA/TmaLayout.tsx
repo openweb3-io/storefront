@@ -9,7 +9,7 @@ import {
 	themeParams,
 	retrieveLaunchParams,
 	viewport,
-} from "@telegram-apps/sdk-react";
+} from "@telegram-apps/sdk";
 import { redirect, usePathname, useRouter } from "next/navigation";
 import { useAuthRequest } from "../hooks";
 import { useClientOnce } from "@/hooks/use-client-once";

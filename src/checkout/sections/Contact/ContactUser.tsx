@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { retrieveLaunchParams } from "@telegram-apps/sdk";
 import { SignUser } from "../SignedInUser/SignUser";
 import { useCustomerAttach } from "@/checkout/hooks/useCustomerAttach";
 import { Guest } from "@/checkout/sections/GuestUser/Guest";

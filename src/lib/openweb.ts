@@ -1,4 +1,4 @@
-import { backButton } from "@telegram-apps/sdk-react";
+import { backButton } from "@telegram-apps/sdk";
 
 export const nativeBackButton = {
 	show: () => backButton.show(),

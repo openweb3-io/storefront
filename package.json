@@ -24,7 +24,6 @@
 		"@stripe/stripe-js": "2.2.0",
 		"@tailwindcss/container-queries": "0.1.1",
 		"@telegram-apps/sdk": "^3.11.8",
-		"@telegram-apps/sdk-react": "^3.3.9",
 		"clsx": "2.1.0",
 		"editorjs-html": "3.4.3",
 		"formik": "2.4.5",

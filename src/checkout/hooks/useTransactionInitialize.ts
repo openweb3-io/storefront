@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 // import { isTMA } from "@telegram-apps/sdk";
-import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { retrieveLaunchParams } from "@telegram-apps/sdk";
 import { openweb3GatewayId } from "../sections/PaymentSection/Openweb3Component/types";
 import { useTransactionInitializeMutation } from "@/checkout/graphql";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
