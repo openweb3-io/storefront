@@ -22,7 +22,6 @@ const initSDK = async () => {
 	backButton.mount();
 	await themeParams.mount();
 	initData.restore();
-	await viewport.mount();
 };
 
 function Loader({ children }: PropsWithChildren) {
@@ -53,11 +52,18 @@ function Loader({ children }: PropsWithChildren) {
 		const startParam = retrieveLaunchParams()?.startParam;
 		console.log("startParam", startParam);
 
-		// bind viewport CSS
-		if (viewport.bindCssVars.isAvailable()) {
-			viewport.bindCssVars();
-			console.log("📐 Viewport CSS variables bound");
-		}
+		viewport
+			.mount()
+			.then(() => {
+				// bind viewport CSS
+				if (viewport.bindCssVars.isAvailable()) {
+					viewport.bindCssVars();
+					console.log("📐 Viewport CSS variables bound");
+				}
+			})
+			.catch((error) => {
+				console.error("❌ Error mounting Viewport", error);
+			});
 
 		if (!startParam) return;
 
@@ -86,7 +92,7 @@ function Loader({ children }: PropsWithChildren) {
 }
 
 export function TmaLayout({ children }: PropsWithChildren) {
-	useClientOnce(() => {
+	useClientOnce(async () => {
 		if (window !== undefined) {
 			const hashContent = window.location?.hash?.split?.("#")?.[1];
 			const searchParams = new URLSearchParams(hashContent);
@@ -101,11 +107,10 @@ export function TmaLayout({ children }: PropsWithChildren) {
 				localStorage.setItem("appId", appId);
 			}
 		}
+		await initSDK();
+
 		const launchParams = retrieveLaunchParams();
 		console.log("launchParams", launchParams);
-		initSDK().catch((error) => {
-			console.error("❌ Error initializing SDK", error);
-		});
 	});
 
 	useTelegramMock();
