@@ -26,6 +26,46 @@ interface AuthResponse {
 	[key: string]: any;
 }
 
+// 解析错误消息，处理可能是字符串数组的字符串表示（如 "['message']"）
+const parseErrorMessage = (message: string | undefined): string => {
+	if (!message) return "";
+
+	// 尝试解析类似 "['message']" 的格式
+	if (message.startsWith("['") && message.endsWith("']")) {
+		try {
+			const parsed = JSON.parse(message.replace(/'/g, '"'));
+			if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "string") {
+				return parsed[0];
+			}
+		} catch {
+			// 如果解析失败，使用原始 message
+		}
+	}
+	return message;
+};
+
+// 处理 API 错误响应，优先显示 data.errors 中的详细错误信息
+const handleApiError = (
+	res: AuthResponse,
+	showCustomErrors: (errors: Array<{ message: string }>) => void,
+	defaultMessage: string,
+) => {
+	if (res.code === -1) {
+		// 优先显示 data.errors 中的详细错误信息
+		if (res.data?.errors && res.data.errors.length > 0) {
+			const errorMessages = res.data.errors.map((error) => {
+				const parsedMessage = parseErrorMessage(error.message);
+				return { message: parsedMessage || res.message || defaultMessage };
+			});
+			showCustomErrors(errorMessages);
+		} else if (res.message) {
+			showCustomErrors([{ message: res.message }]);
+		} else {
+			showCustomErrors([{ message: defaultMessage }]);
+		}
+	}
+};
+
 export const useAuthRequest = () => {
 	const [loading, setLoading] = useState(false);
 	const { showCustomErrors } = useAlerts();
@@ -156,9 +196,7 @@ export const useEmailChangeRequest = () => {
 
 			const res = (await response.json()) as AuthResponse;
 
-			if (res.code === -1 && !!res.message) {
-				showCustomErrors([{ message: res.message }]);
-			}
+			handleApiError(res, showCustomErrors, "Email change request failed");
 
 			if (res.code === 0) {
 				showSuccess("Email change request sent successfully");
@@ -237,9 +275,7 @@ export const useEmailChangeConfirmRequest = () => {
 
 			const res = (await response.json()) as AuthResponse;
 
-			if (res.code === -1 && !!res.message) {
-				showCustomErrors([{ message: res.message }]);
-			}
+			handleApiError(res, showCustomErrors, "Email change confirmation failed");
 
 			if (res.code === 0) {
 				showSuccess("Email change confirmed successfully");
